@@ -120,6 +120,7 @@
                 <button type="submit" class="btn btn-primary btn-sm mt-2">Guardar</button>
             </form>
         </div>
+        <h1>KENER</h1>
         
         <div class="section">
             <h5>Detalles <a class="edit-link" onclick="enableEdit('detalles')">Editar</a></h5>
