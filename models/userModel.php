@@ -35,6 +35,70 @@ class Usuario {
         }
         return false;
     }
+
+     // Método para guardar información de perfil
+     public function guardarInformacionPerfil($id_usuario, $descripcion, $estado, $edad, $trabajo, $ciudad, $campus, $carrera) {
+        // Verificar si el usuario ya tiene información registrada
+        $queryCheck = "SELECT id FROM informaciones WHERE id_user = :id_user";
+        $stmtCheck = $this->conn->prepare($queryCheck);
+        $stmtCheck->bindParam(":id_user", $id_usuario);
+        $stmtCheck->execute();
+
+        if ($stmtCheck->rowCount() > 0) {
+            // Si ya existe, actualizar la información
+            $queryUpdate = "UPDATE informaciones 
+                            SET descripcion = :descripcion, estado = :estado, edad = :edad, 
+                                trabajo = :trabajo, ciudad = :ciudad, campus = :campus, carrera = :carrera 
+                            WHERE id_user = :id_user";
+            $stmt = $this->conn->prepare($queryUpdate);
+        } else {
+            // Si no existe, insertar nueva información
+            $queryInsert = "INSERT INTO informaciones (descripcion, estado, edad, trabajo, ciudad, campus, carrera, id_user) 
+                            VALUES (:descripcion, :estado, :edad, :trabajo, :ciudad, :campus, :carrera, :id_user)";
+            $stmt = $this->conn->prepare($queryInsert);
+        }
+
+        // Vincular parámetros
+        $stmt->bindParam(":descripcion", $descripcion);
+        $stmt->bindParam(":estado", $estado);
+        $stmt->bindParam(":edad", $edad);
+        $stmt->bindParam(":trabajo", $trabajo);
+        $stmt->bindParam(":ciudad", $ciudad);
+        $stmt->bindParam(":campus", $campus);
+        $stmt->bindParam(":carrera", $carrera);
+        $stmt->bindParam(":id_user", $id_usuario);
+
+        return $stmt->execute();
+    }
+
+    public function actualizarFotoPerfil($id_usuario, $foto_perfil) {
+        $query = "UPDATE users SET foto_perfil = :foto_perfil WHERE id = :id_usuario";
+    
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":foto_perfil", $foto_perfil, PDO::PARAM_LOB);
+        $stmt->bindParam(":id_usuario", $id_usuario);
+    
+        return $stmt->execute();
+    }
+    
+    public function actualizarFotoPortada($id_usuario, $foto_perfil) {
+        $query = "UPDATE users SET foto_portada = :foto_portada WHERE id = :id_usuario";
+    
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":foto_portada", $foto_perfil, PDO::PARAM_LOB);
+        $stmt->bindParam(":id_usuario", $id_usuario);
+    
+        return $stmt->execute();
+    }
+
+    public function obtenerInformacionPerfil($id_usuario) {
+        $query = "SELECT descripcion, estado, edad, trabajo, ciudad, campus, carrera FROM informaciones WHERE id_user = :id_usuario";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":id_usuario", $id_usuario);
+        $stmt->execute();
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC); // Devuelve los datos como un array asociativo
+    }
     
 }
 

@@ -2,6 +2,7 @@
 session_start();
 
 $name = $_SESSION["usuario_nombre"];
+require_once __DIR__ . "/../Controller/user-info.php"; 
 ?>
 
 <!DOCTYPE html>
@@ -125,9 +126,24 @@ $name = $_SESSION["usuario_nombre"];
         <!-- Información -->
         <div class="card p-3">
             <h5>Información</h5>
-            <p><i class="fa-solid fa-briefcase"></i> Trabaja en XYZ</p>
-            <p><i class="fa-solid fa-house"></i> Vive en Ciudad</p>
-            <p><i class="fa-solid fa-heart"></i> Estado: Soltero</p>
+            <?php if ($infoPerfil): ?>
+                <p><i class="fas fa-heart"></i> Situación sentimental: <?= htmlspecialchars($infoPerfil['estado'] ?? 'No especificado') ?></p>
+                <p><i class="fas fa-user"></i> Edad: <?php
+                                                        $edad = "No especificado";
+                                                        if (!empty($infoPerfil['edad'])) {
+                                                            $fecha_nacimiento = new DateTime($infoPerfil['edad']); // Convertir a objeto DateTime
+                                                            $hoy = new DateTime(); // Fecha actual
+                                                            $edad = $hoy->diff($fecha_nacimiento)->y. " años"; // Calcular diferencia en años
+                                                        }
+                                                        ?>
+                                                        <?= htmlspecialchars($edad) ?> </p>
+                <p><i class="fas fa-briefcase"></i> Lugar de trabajo: <?= htmlspecialchars($infoPerfil['trabajo'] ?? 'No especificado') ?></p>
+                <p><i class="fas fa-map-marker-alt"></i> Ciudad de origen: <?= htmlspecialchars($infoPerfil['ciudad'] ?? 'No especificado') ?></p>
+                <p><i class="fas fa-school"></i> Campus: <?= htmlspecialchars($infoPerfil['campus'] ?? 'No especificado') ?></p>
+                <p><i class="fas fa-graduation-cap"></i> Carrera: <?= htmlspecialchars($infoPerfil['carrera'] ?? 'No especificado') ?></p>
+            <?php else: ?>
+                <p>No hay información disponible.</p>
+            <?php endif; ?>
         </div>
 
         <!-- Publicaciones -->

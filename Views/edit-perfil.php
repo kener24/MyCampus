@@ -1,3 +1,10 @@
+<?php
+
+    session_start();
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -63,22 +70,7 @@
             }
         }
     </style>
-    <script>
-        function enableEdit(section) {
-            document.getElementById(section + '-text').style.display = 'none';
-            document.getElementById(section + '-input').style.display = 'block';
-        }
-
-        function enableEdit(type) {
-        if (type === "cover") {
-                document.getElementById("cover-photo").style.display = "none";  // Oculta la imagen de portada
-                document.getElementById("cover-form").style.display = "block";  // Muestra el formulario de portada
-            } else if (type === "profile") {
-                document.getElementById("profile-photo").style.display = "none";  // Oculta la imagen de perfil
-                document.getElementById("profile-form").style.display = "block";  // Muestra el formulario de perfil
-            }
-        }
-    </script>
+    
 </head>
 <body>
     <?php include_once "menu.php"; ?>
@@ -86,14 +78,14 @@
         <div class="header">Editar perfil</div>
         
         <div class="section cover-photo">
-            <h5>Foto de portada <a href="#" class="edit-link" onclick="enableEdit('cover')">Editar</a></h5>
+            <h5>Foto de portada <a href="#" class="edit-link" onclick="enableEdit2('cover')">Editar</a></h5>
             
             <!-- Imagen actual -->
             <img id="cover-photo" src="Home/imagen_portada.php" alt="Foto de portada">
             
             <!-- Formulario oculto para subir la nueva imagen -->
-            <form id="cover-form" action="subir_imagen.php" method="post" enctype="multipart/form-data" style="display: none;">
-                <input type="file" name="imagen_portada" class="form-control">
+            <form id="cover-form" action="../Controller/update-portada.php" method="post" enctype="multipart/form-data" style="display: none;">
+                <input type="file" name="foto_portada" class="form-control">
                 <button type="submit" class="btn btn-primary btn-sm mt-2">Guardar</button>
             </form>
         </div>
@@ -101,12 +93,12 @@
         <div class="section profile-pic">
             <img id="profile-photo" src="Home/imagen.php" alt="Foto de perfil">
             <div>
-                <h5>Foto del perfil <a href="#" class="edit-link" onclick="enableEdit('profile')">Editar</a></h5>
+                <h5>Foto del perfil <a href="#" class="edit-link" onclick="enableEdit2('profile')">Editar</a></h5>
             </div>
 
             <!-- Formulario oculto para subir la nueva foto de perfil -->
-            <form id="profile-form" action="subir_imagen.php" method="post" enctype="multipart/form-data" style="display: none;">
-                <input type="file" name="imagen_perfil" class="form-control">
+            <form id="profile-form" action="../Controller/update-profile.php" method="post" enctype="multipart/form-data" style="display: none;">
+                <input type="file" name="foto_perfil" class="form-control">
                 <button type="submit" class="btn btn-primary btn-sm mt-2">Guardar</button>
             </form>
         </div>
@@ -115,13 +107,13 @@
         <div class="section">
             <h5>Presentación <a class="edit-link" onclick="enableEdit('presentacion')">Editar</a></h5>
             <p id="presentacion-text">Añade una breve descripción sobre ti...</p>
-            <form id="presentacion-input" action="guardar_perfil.php" method="post" style="display: none;">
+            <form id="presentacion-input" action="../Controller/saveInfo.php" method="post" style="display: none;">
                 <input type="text" name="presentacion" class="form-control" placeholder="Escribe tu presentación">
                 <button type="submit" class="btn btn-primary btn-sm mt-2">Guardar</button>
+                <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="cancelEdit('presentacion')">Cancelar</button>
             </form>
         </div>
-        <h1>KENER</h1>
-        
+
         <div class="section">
             <h5>Detalles <a class="edit-link" onclick="enableEdit('detalles')">Editar</a></h5>
             <div id="detalles-text">
@@ -131,17 +123,42 @@
                 <p><i class="fas fa-map-marker-alt"></i> Ciudad de origen</p>
                 <p><i class="fas fa-school"></i> Campus</p>
                 <p><i class="fas fa-graduation-cap"></i> Carrera</p>
-                
             </div>
-            <form id="detalles-input" action="guardar_perfil.php" method="post" style="display: none;">
-                <input type="text" name="ciudad" class="form-control" placeholder="Ciudad">
-                <input type="text" name="trabajo" class="form-control" placeholder="Trabajo">
-                <input type="text" name="formacion" class="form-control" placeholder="Formación académica">
-                <input type="text" name="origen" class="form-control" placeholder="Ciudad de origen">
+            <form id="detalles-input" action="../Controller/saveInfo.php" method="post" style="display: none;">
+                <input type="text" name="presentacion" class="form-control" placeholder="Escribe tu presentación">
                 <input type="text" name="estado" class="form-control" placeholder="Situación sentimental">
+                <input type="date" id="fecha" name="fecha" class="form-control">
+                <input type="text" name="trabajo" class="form-control" placeholder="Trabajo">
+                <input type="text" name="origen" class="form-control" placeholder="Ciudad de origen">
+                <input type="text" name="campus" class="form-control" placeholder="Campus">
+                <input type="text" name="carrera" class="form-control" placeholder="Carrera que estudia">
                 <button type="submit" class="btn btn-primary btn-sm mt-2">Guardar</button>
+                <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="cancelEdit('detalles')">Cancelar</button>
             </form>
         </div>
-    </div>
+
+        <script>
+            function enableEdit(section) {
+                // Oculta el texto y muestra el formulario según la sección
+                document.getElementById(section + '-text').style.display = 'none';
+                document.getElementById(section + '-input').style.display = 'block';
+                
+            }
+            function cancelEdit(section) {
+                document.getElementById(section + '-input').style.display = 'none';
+                document.getElementById(section + '-text').style.display = 'block';
+            }
+
+            function enableEdit2(type) {
+                if (type === "cover") {
+                    document.getElementById("cover-photo").style.display = "none";  // Oculta la imagen de portada
+                    document.getElementById("cover-form").style.display = "block";  // Muestra el formulario de portada
+                } else if (type === "profile") {
+                    document.getElementById("profile-photo").style.display = "none";  // Oculta la imagen de perfil
+                    document.getElementById("profile-form").style.display = "block";  // Muestra el formulario de perfil
+                }
+            }
+        </script>
+
 </body>
 </html>
