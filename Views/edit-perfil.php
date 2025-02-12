@@ -52,13 +52,17 @@
         .profile-pic {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
         .profile-pic img {
             width: 70px;
             height: 70px;
             border-radius: 50%;
             object-fit: cover;
+        }
+
+        .profile-pic a {
+            margin-left: 20px;
         }
         .cover-photo img {
             width: 100%;
@@ -103,20 +107,10 @@
             </form>
         </div>
 
-        
-        <div class="section">
-            <h5>Presentación <a class="edit-link" onclick="enableEdit('presentacion')">Editar</a></h5>
-            <p id="presentacion-text">Añade una breve descripción sobre ti...</p>
-            <form id="presentacion-input" action="../Controller/saveInfo.php" method="post" style="display: none;">
-                <input type="text" name="presentacion" class="form-control" placeholder="Escribe tu presentación">
-                <button type="submit" class="btn btn-primary btn-sm mt-2">Guardar</button>
-                <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="cancelEdit('presentacion')">Cancelar</button>
-            </form>
-        </div>
-
         <div class="section">
             <h5>Detalles <a class="edit-link" onclick="enableEdit('detalles')">Editar</a></h5>
             <div id="detalles-text">
+                <p><i class="fas fa-edit"></i> Descripción sobre ti</p>
                 <p><i class="fas fa-heart"></i> Situación sentimental</p>
                 <p><i class="fas fa-user"></i> Edad</p>
                 <p><i class="fas fa-briefcase"></i> Lugar de trabajo</p>
@@ -126,15 +120,41 @@
             </div>
             <form id="detalles-input" action="../Controller/saveInfo.php" method="post" style="display: none;">
                 <input type="text" name="presentacion" class="form-control" placeholder="Escribe tu presentación">
-                <input type="text" name="estado" class="form-control" placeholder="Situación sentimental">
+
+                <select name="estado" class="form-control">
+                    <option value="">Situación sentimental</option>
+                    <option value="Soltero/a">Soltero/a</option>
+                    <option value="En una relación">En una relación</option>
+                    <option value="Comprometido/a">Comprometido/a</option>
+                    <option value="Casado/a">Casado/a</option>
+                    <option value="Es complicado">Es complicado</option>
+                </select>
+
                 <input type="date" id="fecha" name="fecha" class="form-control">
+
                 <input type="text" name="trabajo" class="form-control" placeholder="Trabajo">
                 <input type="text" name="origen" class="form-control" placeholder="Ciudad de origen">
-                <input type="text" name="campus" class="form-control" placeholder="Campus">
+
+                <select name="campus" class="form-control">
+                    <option value="">Selecciona tu campus</option>
+                    <option value="UTH Tegucigalpa">UTH Tegucigalpa</option>
+                    <option value="UTH San Pedro Sula">UTH San Pedro Sula</option>
+                    <option value="UTH La Ceiba">UTH La Ceiba</option>
+                    <option value="UTH Choluteca">UTH Choluteca</option>
+                    <option value="UTH Juticalpa">UTH Juticalpa</option>
+                    <option value="UTH Santa Bárbara">UTH Santa Bárbara</option>
+                    <option value="UTH Cofradía">UTH Cofradía</option>
+                    <option value="UTH Choloma">UTH Choloma</option>
+                    <option value="UTH Puerto Córtes">UTH Puerto Córtes</option>
+                    <option value="UTH Roatan">UTH Roatan</option>
+                </select>
+
                 <input type="text" name="carrera" class="form-control" placeholder="Carrera que estudia">
+
                 <button type="submit" class="btn btn-primary btn-sm mt-2">Guardar</button>
                 <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="cancelEdit('detalles')">Cancelar</button>
             </form>
+
         </div>
 
         <script>

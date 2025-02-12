@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../models/userModel.php';
+require_once __DIR__ . "/../Controller/amigo-info.php";
 
 if (!isset($_GET['id'])) {
     die("Acceso denegado");
@@ -129,9 +130,24 @@ $foto_portada = "Home/img-portada-friends.php?id=" . $id_usuario;
 
         <div class="info-card">
             <h5><i class="fa-solid fa-info-circle"></i> Información</h5>
-            <p><i class="fa-solid fa-briefcase"></i> Trabajo en [empresa]</p>
-            <p><i class="fa-solid fa-house"></i> Vive en [ciudad]</p>
-            <p><i class="fa-solid fa-heart"></i> Estado sentimental</p>
+            <?php if ($infoPerfil): ?>
+                <p><i class="fas fa-heart"></i> Situación sentimental: <?= htmlspecialchars($infoPerfil['estado'] ?? 'No especificado') ?></p>
+                <p><i class="fas fa-user"></i> Edad: <?php
+                                                        $edad = "No especificado";
+                                                        if (!empty($infoPerfil['edad'])) {
+                                                            $fecha_nacimiento = new DateTime($infoPerfil['edad']); // Convertir a objeto DateTime
+                                                            $hoy = new DateTime(); // Fecha actual
+                                                            $edad = $hoy->diff($fecha_nacimiento)->y. " años"; // Calcular diferencia en años
+                                                        }
+                                                        ?>
+                                                        <?= htmlspecialchars($edad) ?> </p>
+                <p><i class="fas fa-briefcase"></i> Lugar de trabajo: <?= htmlspecialchars($infoPerfil['trabajo'] ?? 'No especificado') ?></p>
+                <p><i class="fas fa-map-marker-alt"></i> Ciudad de origen: <?= htmlspecialchars($infoPerfil['ciudad'] ?? 'No especificado') ?></p>
+                <p><i class="fas fa-school"></i> Campus: <?= htmlspecialchars($infoPerfil['campus'] ?? 'No especificado') ?></p>
+                <p><i class="fas fa-graduation-cap"></i> Carrera: <?= htmlspecialchars($infoPerfil['carrera'] ?? 'No especificado') ?></p>
+            <?php else: ?>
+                <p>No hay información disponible.</p>
+            <?php endif; ?>
         </div>
 
         <div class="post-card">
