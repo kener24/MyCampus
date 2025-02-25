@@ -1,8 +1,5 @@
 <?php
 
-
-
-
 require_once __DIR__ . "/../config/database.php";
 
 class Usuario {
@@ -15,6 +12,16 @@ class Usuario {
     }
 
     public function crearUsuario($nombre, $correo, $password, $foto, $foto_portada=null) {
+        $checkQuery = "SELECT id FROM " . $this->table_name . " WHERE correo = :correo";
+        $checkStmt = $this->conn->prepare($checkQuery);
+        $checkStmt->bindParam(":correo", $correo);
+        $checkStmt->execute();
+
+        if ($checkStmt->rowCount() > 0) {
+            return "El correo ya está registrado."; // O puedes retornar false si prefieres manejarlo de otra forma
+        }
+
+
         $query = "INSERT INTO " . $this->table_name . " (nombre, correo, password, foto_perfil, foto_portada, fecha_creacion) 
                   VALUES (:nombre, :correo, :password, :foto, :foto_portada, NOW())";
         
@@ -132,6 +139,7 @@ class Usuario2 {
         
         return $stmt->fetch(PDO::FETCH_ASSOC); // Devuelve un solo usuario en vez de una lista
     }
+
     
 }
 ?>

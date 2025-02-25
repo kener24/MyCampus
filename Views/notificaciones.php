@@ -1,13 +1,7 @@
 <?php
 
     session_start();
-    require_once '../models/userModel.php';
-
-    // Asumiendo que el ID del usuario logueado está en la sesión
-    $id_usuario_actual = $_SESSION['usuario_id'];  // Cambia esto según tu lógica de sesión
-
-    $usuario = new Usuario2();
-    $usuarios_sugeridos = $usuario->obtenerUsuariosSugeridos($id_usuario_actual);
+    
 
 ?>
 
@@ -100,25 +94,20 @@
 <body>
     <?php include_once "menu.php"; ?>
     <div class="container">
-        <div class="header">Solicitudes de Amistad</div>
-        
-        <?php
-        foreach ($usuarios_sugeridos as $usuario) {
-            echo '<div class="friend-request">';
-            echo '<a href="perfil-amigo.php?id=' . $usuario['id'] . '" class="d-flex align-items-center text-decoration-none text-dark">';
-            echo '<img src="Home/img-amigos.php?id=' . $usuario['id'] . '" alt="Perfil">';
-            echo '<div>';
-            echo '<p>' . $usuario['nombre'] . '</p>';
-            echo '</div>';
-            echo '</a>';
-            echo '<form action="../Controller/amistadController.php" method="post">';
-            echo '<input type="hidden" name="id_usuario" value="' . $usuario['id'] . '">';
-            echo '<button type="submit" class="btn-add">Enviar Solicitud</button>';
-            echo '</form>';
-            echo '</div>';
-        }
-        ?>
+        <div class="header">Notificaciones</div>
 
+        <?php if (empty($notificaciones)): ?>
+            <p>No tienes notificaciones.</p>
+        <?php else: ?>
+            <?php foreach ($notificaciones as $notificacion): ?>
+                <div class="friend-request">
+                    <a href="perfil-amigo.php?id=<?= $notificacion['emisor_id']; ?>">
+                        <img src="<?= $notificacion['foto_perfil']; ?>" alt="Foto de <?= $notificacion['emisor_nombre']; ?>">
+                        <p><?= $notificacion['emisor_nombre']; ?> - <?= $notificacion['mensaje']; ?></p>
+                    </a>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
 </body>
 </html>
