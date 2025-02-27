@@ -17,7 +17,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solicitudes de Amistad</title>
+    <title>Nuevos amigos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
@@ -100,7 +100,12 @@
 <body>
     <?php include_once "menu.php"; ?>
     <div class="container">
-        <div class="header">Solicitudes de Amistad</div>
+        <div class="header">Nuevos amigos</div>
+        <nav class="nav nav-pills justify-content-center mb-3">
+            <a class="nav-link active" href="amigos.php">Nuevo amigo</a>
+            <a class="nav-link" href="solicitudes.php">Solicitudes</a>
+            <a class="nav-link" href="misAmigos.php">Amigos</a>
+        </nav>
         
         <?php
         foreach ($usuarios_sugeridos as $usuario) {

@@ -120,16 +120,33 @@ class Usuario2 {
 
     // Obtener usuarios diferentes al que está logueado
     public function obtenerUsuariosSugeridos($id_usuario) {
-        $query = "SELECT id, nombre, foto_perfil,foto_portada FROM " . $this->table_name . " WHERE id != :id_usuario";
-        
+        $query = "SELECT u.id, u.nombre, u.foto_perfil, u.foto_portada 
+                  FROM users u
+                  WHERE u.id != :id_usuario
+                  AND u.id NOT IN (
+                      -- Excluir amigos confirmados
+                      SELECT CASE 
+                                 WHEN a.usuario_id = :id_usuario THEN a.amigo_id
+                                 ELSE a.usuario_id
+                             END 
+                      FROM amigos a
+                      WHERE a.usuario_id = :id_usuario OR a.amigo_id = :id_usuario
+                  )
+                  AND u.id NOT IN (
+                      -- Excluir usuarios con solicitudes pendientes o aceptadas
+                      SELECT s.id_solicitante FROM solicitudes s WHERE s.id_receptor = :id_usuario AND s.estado IN ('pendiente', 'aceptado')
+                      UNION 
+                      SELECT s.id_receptor FROM solicitudes s WHERE s.id_solicitante = :id_usuario AND s.estado IN ('pendiente', 'aceptado')
+                  )";
+    
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":id_usuario", $id_usuario);
-
+        $stmt->bindParam(":id_usuario", $id_usuario, PDO::PARAM_INT);
+        
         $stmt->execute();
-
+    
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
+    
     public function obtenerUsuarioPorId($id_usuario) {
         $query = "SELECT id, nombre, foto_perfil, foto_portada FROM " . $this->table_name . " WHERE id = :id_usuario LIMIT 1";
         

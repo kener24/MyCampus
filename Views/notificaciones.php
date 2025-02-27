@@ -1,11 +1,23 @@
 <?php
 
-    session_start();
-    
+session_start();
+require_once '../models/amistadModel.php';
+require_once '../config/database.php';
+
+if (!isset($_SESSION['usuario_id'])) {
+    die("Acceso denegado.");
+}
+
+
+
+$database = new Database();
+$conn = $database->getConnection();
+$notificacionModel = new amistad($conn);
+
+$notificaciones = $notificacionModel->obtenerNotificacionesAmistad($_SESSION['usuario_id']);
+
 
 ?>
-
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -92,22 +104,30 @@
 
 </head>
 <body>
-    <?php include_once "menu.php"; ?>
-    <div class="container">
-        <div class="header">Notificaciones</div>
+<?php include_once "menu.php"; ?>
 
-        <?php if (empty($notificaciones)): ?>
-            <p>No tienes notificaciones.</p>
+
+<div class="container">
+    <div class="header">Notificaciones de Amistad</div>
+    
+    <?php if (empty($notificaciones)): ?>
+    <p>No tienes solicitudes de amistad.</p>
         <?php else: ?>
             <?php foreach ($notificaciones as $notificacion): ?>
                 <div class="friend-request">
-                    <a href="perfil-amigo.php?id=<?= $notificacion['emisor_id']; ?>">
-                        <img src="<?= $notificacion['foto_perfil']; ?>" alt="Foto de <?= $notificacion['emisor_nombre']; ?>">
-                        <p><?= $notificacion['emisor_nombre']; ?> - <?= $notificacion['mensaje']; ?></p>
+                    <a href="perfil-amigo.php?id=<?= isset($notificacion['id_solicitante']) ? $notificacion['id_solicitante'] : ''; ?>">
+                        <?php if (!empty($notificacion['id_solicitante'])): ?>
+                            <img src="Home/img-amigos.php?id=<?= urlencode($notificacion['id_solicitante']); ?>" alt="Foto de <?= htmlspecialchars($notificacion['emisor_nombre']); ?>">
+                        <?php else: ?>
+                            <img src="Home/default.png" alt="Usuario desconocido">
+                        <?php endif; ?>
+                        <p><?= htmlspecialchars($notificacion['emisor_nombre']); ?> te ha enviado una solicitud de amistad.</p>
                     </a>
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
-    </div>
+
+</div>
+
 </body>
 </html>
