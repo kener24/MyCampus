@@ -1,8 +1,5 @@
 <?php
 
-
-
-
 require_once __DIR__ . "/../config/database.php";
 
 class Usuario {
@@ -15,6 +12,16 @@ class Usuario {
     }
 
     public function crearUsuario($nombre, $correo, $password, $foto, $foto_portada=null) {
+        $checkQuery = "SELECT id FROM " . $this->table_name . " WHERE correo = :correo";
+        $checkStmt = $this->conn->prepare($checkQuery);
+        $checkStmt->bindParam(":correo", $correo);
+        $checkStmt->execute();
+
+        if ($checkStmt->rowCount() > 0) {
+            return "El correo ya está registrado."; // O puedes retornar false si prefieres manejarlo de otra forma
+        }
+
+
         $query = "INSERT INTO " . $this->table_name . " (nombre, correo, password, foto_perfil, foto_portada, fecha_creacion) 
                   VALUES (:nombre, :correo, :password, :foto, :foto_portada, NOW())";
         
@@ -113,16 +120,33 @@ class Usuario2 {
 
     // Obtener usuarios diferentes al que está logueado
     public function obtenerUsuariosSugeridos($id_usuario) {
-        $query = "SELECT id, nombre, foto_perfil,foto_portada FROM " . $this->table_name . " WHERE id != :id_usuario";
-        
+        $query = "SELECT u.id, u.nombre, u.foto_perfil, u.foto_portada 
+                  FROM users u
+                  WHERE u.id != :id_usuario
+                  AND u.id NOT IN (
+                      -- Excluir amigos confirmados
+                      SELECT CASE 
+                                 WHEN a.usuario_id = :id_usuario THEN a.amigo_id
+                                 ELSE a.usuario_id
+                             END 
+                      FROM amigos a
+                      WHERE a.usuario_id = :id_usuario OR a.amigo_id = :id_usuario
+                  )
+                  AND u.id NOT IN (
+                      -- Excluir usuarios con solicitudes pendientes o aceptadas
+                      SELECT s.id_solicitante FROM solicitudes s WHERE s.id_receptor = :id_usuario AND s.estado IN ('pendiente', 'aceptado')
+                      UNION 
+                      SELECT s.id_receptor FROM solicitudes s WHERE s.id_solicitante = :id_usuario AND s.estado IN ('pendiente', 'aceptado')
+                  )";
+    
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":id_usuario", $id_usuario);
-
+        $stmt->bindParam(":id_usuario", $id_usuario, PDO::PARAM_INT);
+        
         $stmt->execute();
-
+    
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
+    
     public function obtenerUsuarioPorId($id_usuario) {
         $query = "SELECT id, nombre, foto_perfil, foto_portada FROM " . $this->table_name . " WHERE id = :id_usuario LIMIT 1";
         
@@ -132,6 +156,7 @@ class Usuario2 {
         
         return $stmt->fetch(PDO::FETCH_ASSOC); // Devuelve un solo usuario en vez de una lista
     }
+
     
 }
 ?>

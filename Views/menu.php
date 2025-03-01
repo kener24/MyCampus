@@ -131,7 +131,7 @@
         <div class="nav-center">
             <a href="Feed.php"><i class="fa-solid fa-house"></i><span>Feed</span></a>
             <a href="amigos.php"><i class="fa-solid fa-user-group"></i><span>Amigos</span></a>
-            <a href="#"><i class="fa-solid fa-bell"></i><span>Notificaciones</span></a>
+            <a href="notificaciones.php"><i class="fa-solid fa-bell"></i><span>Notificaciones</span></a>
             <a href="#"><i class="fa-solid fa-envelope"></i><span>Mensajes</span></a>
         </div>
 

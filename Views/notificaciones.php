@@ -1,23 +1,29 @@
 <?php
 
-    session_start();
-    require_once '../models/userModel.php';
+session_start();
+require_once '../models/amistadModel.php';
+require_once '../config/database.php';
 
-    // Asumiendo que el ID del usuario logueado está en la sesión
-    $id_usuario_actual = $_SESSION['usuario_id'];  // Cambia esto según tu lógica de sesión
+if (!isset($_SESSION['usuario_id'])) {
+    die("Acceso denegado.");
+}
 
-    $usuario = new Usuario2();
-    $usuarios_sugeridos = $usuario->obtenerUsuariosSugeridos($id_usuario_actual);
+
+
+$database = new Database();
+$conn = $database->getConnection();
+$notificacionModel = new amistad($conn);
+
+$notificaciones = $notificacionModel->obtenerNotificacionesAmistad($_SESSION['usuario_id']);
+
 
 ?>
-
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuevos amigos</title>
+    <title>Solicitudes de Amistad</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
@@ -98,32 +104,30 @@
 
 </head>
 <body>
-    <?php include_once "menu.php"; ?>
-    <div class="container">
-        <div class="header">Nuevos amigos</div>
-        <nav class="nav nav-pills justify-content-center mb-3">
-            <a class="nav-link active" href="amigos.php">Nuevo amigo</a>
-            <a class="nav-link" href="solicitudes.php">Solicitudes</a>
-            <a class="nav-link" href="misAmigos.php">Amigos</a>
-        </nav>
-        
-        <?php
-        foreach ($usuarios_sugeridos as $usuario) {
-            echo '<div class="friend-request">';
-            echo '<a href="perfil-amigo.php?id=' . $usuario['id'] . '" class="d-flex align-items-center text-decoration-none text-dark">';
-            echo '<img src="Home/img-amigos.php?id=' . $usuario['id'] . '" alt="Perfil">';
-            echo '<div>';
-            echo '<p>' . $usuario['nombre'] . '</p>';
-            echo '</div>';
-            echo '</a>';
-            echo '<form action="../Controller/amistadController.php" method="post">';
-            echo '<input type="hidden" name="id_usuario" value="' . $usuario['id'] . '">';
-            echo '<button type="submit" class="btn-add">Enviar Solicitud</button>';
-            echo '</form>';
-            echo '</div>';
-        }
-        ?>
+<?php include_once "menu.php"; ?>
 
-    </div>
+
+<div class="container">
+    <div class="header">Notificaciones de Amistad</div>
+    
+    <?php if (empty($notificaciones)): ?>
+    <p>No tienes solicitudes de amistad.</p>
+        <?php else: ?>
+            <?php foreach ($notificaciones as $notificacion): ?>
+                <div class="friend-request">
+                    <a href="perfil-amigo.php?id=<?= isset($notificacion['id_solicitante']) ? $notificacion['id_solicitante'] : ''; ?>">
+                        <?php if (!empty($notificacion['id_solicitante'])): ?>
+                            <img src="Home/img-amigos.php?id=<?= urlencode($notificacion['id_solicitante']); ?>" alt="Foto de <?= htmlspecialchars($notificacion['emisor_nombre']); ?>">
+                        <?php else: ?>
+                            <img src="Home/default.png" alt="Usuario desconocido">
+                        <?php endif; ?>
+                        <p><?= htmlspecialchars($notificacion['emisor_nombre']); ?> te ha enviado una solicitud de amistad.</p>
+                    </a>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+
+</div>
+
 </body>
 </html>
