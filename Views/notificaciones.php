@@ -63,7 +63,7 @@ $notificaciones = $notificacionModel->obtenerNotificacionesAmistad($_SESSION['us
         flex-grow: 1; /* Permite que el texto ocupe más espacio */
     }
     .friend-request img {
-        width: 60px; /* Tamaño más uniforme */
+        width: 60px;
         height: 60px;
         border-radius: 50%;
         object-fit: cover;
@@ -92,13 +92,20 @@ $notificaciones = $notificacionModel->obtenerNotificacionesAmistad($_SESSION['us
         }
         .friend-request {
             display: flex;
-        align-items: center;
-        justify-content: space-between; /* Separa bien los elementos */
-        padding: 15px;
+            align-items: center;
+            justify-content: space-between; /* Separa bien los elementos */
+            padding: 15px;
         }
         .btn-add {
             width: 100%;
         }
+        .friend-request img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
     }
 </style>
 

@@ -115,7 +115,7 @@ $solicitudes_pendientes = $usuario->obtenerSolicitudesPendientes($id_usuario_act
                     <form action="../Controller/solicitudController.php" method="post">
                         <input type="hidden" name="id_solicitud" value="<?= $solicitud['id'] ?>">
                         <button type="submit" name="accion" value="aceptar" class="btn-accept">Aceptar</button>
-                        <!-- <button type="submit" name="accion" value="rechazar" class="btn-reject">Rechazar</button> -->
+                         <button type="submit" name="accion" value="rechazar" class="btn-reject">Rechazar</button>
                     </form>
                 </div>
             <?php endforeach; ?>
