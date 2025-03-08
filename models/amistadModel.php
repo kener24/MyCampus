@@ -10,9 +10,9 @@ class Amistad {
         $this->conn = $db;
     }
 
-    // Enviar solicitud de amistad
+    
     public function enviarSolicitud($id_solicitante, $id_receptor) {
-        // Verificar si ya hay una solicitud o son amigos
+        
         $query = "SELECT * FROM {$this->table_solicitudes} 
                   WHERE (id_solicitante = :id_solicitante AND id_receptor = :id_receptor)
                   OR (id_solicitante = :id_receptor AND id_receptor = :id_solicitante)";
@@ -41,13 +41,22 @@ class Amistad {
 
     // Obtener notificaciones
     public function obtenerNotificacionesAmistad($usuario_id) {
-        $query = "SELECT n.*, s.id_solicitante, u.nombre AS emisor_nombre, u.foto_perfil 
-                  FROM notificaciones n
-                  JOIN solicitudes s ON n.id_usuario = s.id_receptor
-                  JOIN users u ON s.id_solicitante = u.id
-                  WHERE n.id_usuario = :usuario_id 
-                  AND n.tipo = 'solicitud_amistad'
-                  ORDER BY n.fecha DESC";
+        $query = "SELECT n.id, u.id AS id_solicitante, u.nombre AS emisor_nombre, u.foto_perfil, n.mensaje,n.fecha
+        FROM notificaciones n
+        JOIN solicitudes s ON n.id_usuario = s.id_receptor 
+                        AND n.tipo = 'solicitud_amistad'
+        JOIN users u ON s.id_solicitante = u.id
+        WHERE (s.id_solicitante, n.fecha) IN (
+            SELECT s2.id_solicitante, MAX(n2.fecha) 
+            FROM notificaciones n2
+            JOIN solicitudes s2 ON n2.id_usuario = s2.id_receptor 
+                            AND n2.tipo = 'solicitud_amistad'
+            WHERE n2.id_usuario = :usuario_id
+            GROUP BY s2.id_solicitante
+        )
+        ORDER BY n.fecha DESC;";
+
+
     
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":usuario_id", $usuario_id, PDO::PARAM_INT);
@@ -74,9 +83,9 @@ class Amistad {
 
 
 
-    // ✅ Aceptar solicitud de amistad
+    
     public function aceptarSolicitud($id_solicitud, $nombreUsuarioActual) {
-        // Obtener datos de la solicitud
+        
         $query = "SELECT id_solicitante, id_receptor FROM solicitudes WHERE id = :id_solicitud";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":id_solicitud", $id_solicitud, PDO::PARAM_INT);
@@ -87,14 +96,14 @@ class Amistad {
             try {
                 $this->conn->beginTransaction();
     
-                // Insertar en la tabla de amigos
+                
                 $queryInsert = "INSERT INTO amigos (usuario_id, amigo_id) VALUES (:usuario_id, :amigo_id)";
                 $stmtInsert = $this->conn->prepare($queryInsert);
                 $stmtInsert->bindParam(":usuario_id", $solicitud['id_solicitante'], PDO::PARAM_INT);
                 $stmtInsert->bindParam(":amigo_id", $solicitud['id_receptor'], PDO::PARAM_INT);
                 $stmtInsert->execute();
     
-                // Enviar notificación al solicitante
+                
                 $mensaje = "¡" . $nombreUsuarioActual . " aceptó tu solicitud de amistad!";
                 $queryNotificacion = "INSERT INTO notificaciones (id_usuario, tipo, mensaje) 
                                       VALUES (:usuario_id, 'amistad_aceptada', :mensaje)";
@@ -103,7 +112,7 @@ class Amistad {
                 $stmtNotificacion->bindParam(":mensaje", $mensaje, PDO::PARAM_STR);
                 $stmtNotificacion->execute();
     
-                // ACTUALIZAR la solicitud a estado "aceptada"
+                
                 $queryUpdate = "UPDATE solicitudes SET estado = 'aceptado' WHERE id = :id_solicitud";
                 $stmtUpdate = $this->conn->prepare($queryUpdate);
                 $stmtUpdate->bindParam(":id_solicitud", $id_solicitud, PDO::PARAM_INT);
@@ -119,7 +128,7 @@ class Amistad {
         return false;
     }
     
-    // ✅ Rechazar solicitud (actualiza estado en vez de eliminarla)
+    
     public function rechazarSolicitud($id_solicitud) {
         $queryUpdate = "UPDATE solicitudes SET estado = 'rechazado' WHERE id = :id_solicitud";
         $stmtUpdate = $this->conn->prepare($queryUpdate);
