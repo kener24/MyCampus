@@ -2,7 +2,16 @@
 session_start();
 
 $name = $_SESSION["usuario_nombre"];
-require_once __DIR__ . "/../Controller/user-info.php"; 
+require_once '../config/database.php';
+require_once __DIR__ . "/../Controller/user-info.php";
+require_once '../config/helpers.php';
+require_once '../Controller/mostrar-post.php';
+
+$database = new Database();
+$conn = $database->getConnection();
+$postController = new PostController($conn);
+$publicaciones = $postController->mostrarPublicacionesPorUsuario($_SESSION['usuario_id']);
+
 ?>
 
 <!DOCTYPE html>
@@ -13,6 +22,7 @@ require_once __DIR__ . "/../Controller/user-info.php";
     <title>Mi perfil</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="icon" type="image/png" href="Home/logo.png">
     <style>
         body {
             background-color: #f0f2f5;
@@ -76,7 +86,7 @@ require_once __DIR__ . "/../Controller/user-info.php";
             border-radius: 10px;
             padding: 15px;
             color: black;
-            margin-left: 445px;
+            margin-left: 33%;
             margin-top: 5px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
             display: flex;
@@ -229,6 +239,59 @@ require_once __DIR__ . "/../Controller/user-info.php";
         .image-btn img {
             width: 35px;
             height: 35px;
+        }
+        .post-example-box{
+            width: 100%;
+            max-width: 500px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-top: 15px;
+            margin-left: 18%;
+
+        }
+
+        .post-example-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 5px;
+        }
+        .like-btn, .comment-btn, .share-btn {
+            background: #f0f2f5;
+            border: none;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .like-example-btn:hover, .comment-example-btn:hover, .share-example-btn:hover {
+            background: #e4e6eb;
+        }
+        .username {
+            font-weight: bold;
+            margin-top: -40px;
+            margin-left: 60px;
+
+        }
+        .post-date {
+            font-size: 0.85rem;
+            color: gray;
+            margin-left: 60px;
+            margin-top: -20px;
+        }
+        .post-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .post-image {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 8px;
         }
 
         /* Ajustes para móviles */
@@ -391,10 +454,40 @@ require_once __DIR__ . "/../Controller/user-info.php";
         </div>
 
         <div class="card p-3">
-            <h5><i class="fa-solid fa-user"></i> Nombre de Usuario</h5>
-            <p>Este es un ejemplo de publicación en el perfil.</p>
-            <button class="btn btn-light btn-sm"><i class="fa-solid fa-thumbs-up"></i> Me gusta</button>
-            <button class="btn btn-light btn-sm"><i class="fa-solid fa-comment"></i> Comentar</button>
+        <h5><i class="fa-solid fa-user"></i> Tus publicaciones</h5>
+        <?php foreach ($publicaciones as $publicacion): ?>
+            <div class="post-example-box">
+                <div class="post-example-header">
+                <img src="Home/img-post.php?id=<?php echo $publicacion['user_id']; ?>" alt="Perfil" class="profile-pic">
+
+
+                    <div>
+                        <p class="username"><?php echo htmlspecialchars($publicacion['nombre']); ?></p>
+                        <p class="post-date"><?php echo htmlspecialchars(tiempoTranscurrido($publicacion['created_at'])); ?></p>
+
+                    </div>
+                </div>
+                <div class="post-example-content">
+                    <p><?php echo htmlspecialchars($publicacion['content']); ?></p>
+                    <!-- Mostrar las imágenes del post -->
+                    <?php if (!empty($publicacion['images'])): ?>
+                        <div class="post-images">
+                            <?php 
+                            $imagenes = explode(',', $publicacion['images']);
+                            foreach ($imagenes as $imagen): ?>
+                                <img src="<?php echo htmlspecialchars($imagen); ?>" alt="Imagen de publicación" class="post-image">
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div class="post-actions">
+                    <button class="like-example-btn">👍 Me gusta</button>
+                    <button class="comment-example-btn">💬 Comentar</button>
+                    <button class="share-example-btn">🔁 Compartir</button>
+                </div>
+            </div>
+        <?php endforeach; ?>
+
         </div>
     </div>
 
