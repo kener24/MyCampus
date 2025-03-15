@@ -38,7 +38,7 @@ $publicaciones = $postController->mostrarPublicaciones();
             
         .post-box {
             width: 100%;
-            max-width: 500px;
+            max-width: 700px;
             background: #fff;
             padding: 15px;
             border-radius: 10px;
@@ -212,13 +212,13 @@ $publicaciones = $postController->mostrarPublicaciones();
 
         .post-example-box{
             width: 100%;
-            max-width: 500px;
+            max-width: 700px;
             background: #fff;
             padding: 10px;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             margin-top: 15px;
-            margin-left: 18%;
+            margin-left: 40px;
 
         }
 

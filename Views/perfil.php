@@ -242,13 +242,13 @@ $publicaciones = $postController->mostrarPublicacionesPorUsuario($_SESSION['usua
         }
         .post-example-box{
             width: 100%;
-            max-width: 500px;
+            max-width: 700px;
             background: #fff;
             padding: 10px;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             margin-top: 15px;
-            margin-left: 18%;
+            margin-left: 10px;
 
         }
 
@@ -272,14 +272,14 @@ $publicaciones = $postController->mostrarPublicacionesPorUsuario($_SESSION['usua
         }
         .username {
             font-weight: bold;
-            margin-top: -40px;
-            margin-left: 60px;
+            margin-top: -60px;
+            margin-left: 70px;
 
         }
         .post-date {
             font-size: 0.85rem;
             color: gray;
-            margin-left: 60px;
+            margin-left: 80px;
             margin-top: -20px;
         }
         .post-images {
@@ -359,6 +359,18 @@ $publicaciones = $postController->mostrarPublicacionesPorUsuario($_SESSION['usua
                 background: #f0f2f5;
             }
 
+            .post-example-box{
+                width: 100%;
+                max-width: 700px;
+                background: #fff;
+                padding: 10px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                margin-top: 15px;
+                margin-left: 0px;
+
+            }
+
             
         }
     </style>
@@ -418,39 +430,44 @@ $publicaciones = $postController->mostrarPublicacionesPorUsuario($_SESSION['usua
                 </div>
                 </a>
             </div>
-                <div id="myModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Crear publicación</h3>
-                        <span id="closeModal" class="close">&times;</span>
-                    </div>
-                    <div class="modal-body">
-                        <div class="user-info">
-                            <img src="Home/imagen.php" alt="Perfil" class="profile-pic">
-                            <div>
-                                <p class="username"><?php echo $name; ?></p>
-                                <select class="privacy">
-                                    <option>Público</option>
-                                    <option>Amigos</option>
-                                    <option>Solo yo</option>
-                                </select>
-                            </div>
-                        </div>
-                        <textarea placeholder="¿Qué estás pensando?" class="post-input"></textarea>
-
-                        <!-- Previsualización de la imagen -->
-                        <div id="image-preview-container" class="image-grid"></div>
-                        <div class="post-actions">
-                            <p>Agraga foto o videos</p>
-                            <label for="file-upload" class="file-label">
-                                📷 Foto/Video
-                            </label>
-                            <input type="file" id="file-upload" class="file-input" hidden multiple>
-                        </div>
-                        <button class="post-btn">Publicar</button>
-                    </div>
+            <div id="myModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Crear publicación</h3>
+                    <span id="closeModal" class="close">&times;</span>
                 </div>
+                <div class="modal-body">
+                    
+                <form action="../Controller/postController.php" method="POST" enctype="multipart/form-data">
+                    <div class="user-info">
+                        <img src="Home/imagen.php" alt="Perfil" class="profile-pic">
+                        <div>
+                            <p class="username1"><?php echo $name; ?></p>
+                            <select id="privacy" name="privacy" class="privacy">
+                                <option value="publico">Público</option>
+                                <option value="amigos">Amigos</option>
+                                <option value="solo_yo">Solo yo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" name="user_id" value="<?php echo $_SESSION['usuario_id']; ?>">
+                    <textarea id="post-content" name="content" placeholder="¿Qué estás pensando?" class="post-input"></textarea>
+
+                    <!-- Previsualización de la imagen -->
+                    <div id="image-preview-container" class="image-grid"></div>
+                    <div class="post-actions">
+                        <p>Agraga foto o videos</p>
+                        <label for="file-upload" class="file-label">
+                            📷 Foto/Video
+                        </label>
+                        <input type="file" name="images[]" id="file-upload" class="file-input" hidden multiple>
+                    </div>
+                    <button type="submit" class="post-btn">Publicar</button>
+                    </form>
+                </div>
+                
             </div>
+        </div>
         </div>
 
         <div class="card p-3">

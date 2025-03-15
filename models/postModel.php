@@ -14,11 +14,13 @@ class PostModel {
                   FROM posts p
                   JOIN users u ON p.user_id = u.id
                   LEFT JOIN post_images pi ON pi.post_id = p.post_id
-                  GROUP BY p.post_id";
+                  GROUP BY p.post_id
+                  ORDER BY p.created_at DESC";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
 
     public function obtenerPublicacionesPorUsuario($userId) {
         $query = "SELECT p.post_id, p.content, p.created_at, u.id AS user_id, u.nombre, u.foto_perfil, 
