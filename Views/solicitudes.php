@@ -22,75 +22,7 @@ $solicitudes_pendientes = $usuario->obtenerSolicitudesPendientes($id_usuario_act
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="icon" type="image/png" href="Home/logo.png">
-    <style>
-    body {
-        background-color: #fff;
-        color: #000;
-    }
-    .container {
-        width: 800px !important;
-        max-width: 100%;
-        margin: 20px auto;
-        background: #fff;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    }
-    .header {
-        text-align: center;
-        font-size: 20px;
-        font-weight: bold;
-        padding: 15px 0;
-        border-bottom: 1px solid #ddd;
-    }
-    .friend-request {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 15px;
-        border-bottom: 1px solid #ddd;
-    }
-    .friend-request img {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-    .friend-request p {
-        margin: 0;
-        font-size: 16px;
-        margin-left: 20px;
-        font-weight: bold;
-    }
-    .btn-accept {
-        background-color: #28a745;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 5px;
-        font-size: 14px;
-    }
-    .btn-reject {
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 5px;
-        font-size: 14px;
-    }
-    .btn-accept:hover {
-        background-color: #218838;
-    }
-    .btn-reject:hover {
-        background-color: #c82333;
-    }
-    @media (max-width: 768px) {
-        .container {
-            width: 95%;
-            margin-top: -60px;
-        }
-    }
-    </style>
+    <link rel="stylesheet" href="css/solicitudes.css">
 </head>
 <body>
     <?php include_once "menu.php"; ?>

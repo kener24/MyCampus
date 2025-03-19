@@ -1,3 +1,8 @@
+<?php
+session_start();
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -87,14 +92,14 @@
     <div class="login-container">
         <h2>MyCampus</h2>
         <p class="text-light">Inicia sesión para continuar</p>
-        
-        <form action="Controller/loginController.php" method="POST">
-            <?php if (isset($error)): ?>
-                <div class="alert alert-danger">
-                    <?php echo $error; ?>
-                </div>
-            <?php endif; ?>
 
+        <?php if (isset($_SESSION['error'])): ?>
+            <div id="alert" class="alert alert-danger">
+                <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+            </div>
+        <?php endif; ?>
+
+        <form action="Controller/loginController.php" method="POST">
             <div class="mb-3">
                 <input type="email" name="correo" class="form-control" placeholder="Correo Electrónico" required>
             </div>
@@ -115,5 +120,16 @@
         </form>
     </div>
 
+    <script>
+       
+        setTimeout(() => {
+            const alert = document.getElementById('alert');
+            if (alert) {
+                alert.style.transition = "opacity 0.5s ease";
+                alert.style.opacity = "0";
+                setTimeout(() => alert.remove(), 500); // Elimina el elemento después de la transición
+            }
+        }, 3000); // 10 segundos
+    </script>
 </body>
 </html>
