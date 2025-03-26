@@ -106,7 +106,7 @@ $publicaciones = $postController->mostrarPublicacionesPorUsuario($_SESSION['usua
                     <!-- Previsualización de la imagen -->
                     <div id="image-preview-container" class="image-grid"></div>
                     <div class="post-actions">
-                        <p>Agraga foto o videos</p>
+                        <p>Agrega foto o videos</p>
                         <label for="file-upload" class="file-label">
                             📷 Foto/Video
                         </label>

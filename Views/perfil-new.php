@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,7 +10,6 @@
     <title>Registro de Usuario</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Fondo con un degradado verde oscuro */
         body {
             background: linear-gradient(135deg, #1b4332, #081c15);
             height: 100vh;
@@ -16,7 +19,6 @@
             padding: 20px;
         }
 
-        /* Contenedor centrado con efecto de tarjeta */
         .register-container {
             background: rgba(34, 102, 57, 0.15);
             backdrop-filter: blur(10px);
@@ -50,7 +52,6 @@
             color: #ffffff;
         }
 
-        /* Botón en tonos verdes */
         .btn-primary {
             background: #40916c;
             border: none;
@@ -62,7 +63,6 @@
             transform: scale(1.05);
         }
 
-        /* Responsividad */
         @media (max-width: 480px) {
             .register-container {
                 padding: 20px;
@@ -75,6 +75,16 @@
 
     <div class="register-container">
         <h2>Registro de Usuario</h2>
+
+        <!-- Alerta de mensaje -->
+        <?php if (isset($_SESSION['alerta'])): ?>
+            <div class="alert alert-<?= $_SESSION['alerta']['tipo'] ?> alert-dismissible fade show" role="alert">
+                <?= $_SESSION['alerta']['mensaje'] ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php unset($_SESSION['alerta']); ?>
+        <?php endif; ?>
+
         <form action="../Controller/userController.php" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="nombre" class="form-label text-light">Nombre</label>
@@ -102,6 +112,16 @@
             <a href="../index.php" class="link-light">Volver al inicio de sesión</a>
         </div>
     </div>
-
+    <script>
+        // Función para ocultar la alerta automáticamente después de 5 segundos
+        setTimeout(() => {
+            const alerta = document.getElementById("alerta");
+            if (alerta) {
+                alerta.style.opacity = "0";
+                setTimeout(() => alerta.remove(), 500); // Esperar a que se desvanezca
+            }
+        }, 3000);
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

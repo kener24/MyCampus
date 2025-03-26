@@ -2,11 +2,50 @@ body {
     background-color: #f0f2f5;
     
 }
+.likes-count{
+    margin-top: 80px;
+    margin-left: 60px;
+}
+.no-deco {
+    color: inherit; /* Hereda el color del padre */
+    text-decoration: none; /* Elimina el subrayado */
+}
+.btn-me-gusta.liked {
+    background-color: #2cab1600;
+    color: rgb(20, 231, 24);
+    border: 1px solid #03391f;
+}
+
+.modal-1 {
+    display: block;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-contenido {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    width: 50%;
+    border-radius: 8px;
+}
+
+.cerrar {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+}
+
 .container {
-    width: 800px !important;
+    width: 600px !important;
     max-width: 100%;
     margin: 20px auto;
-    background: #fff;
+    background-color: #fdf4f4;
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
@@ -14,7 +53,7 @@ body {
     
 .post-box {
     width: 100%;
-    max-width: 700px;
+    max-width: 600px;
     background: #fff;
     padding: 15px;
     border-radius: 10px;
@@ -149,9 +188,44 @@ body {
 
 .post-actions {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
+    padding: 8px 15px;
+    border-top: 1px solid #ddd;
+    background: #fff;
 }
+
+.post-actions button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #65676b;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+    border-radius: 5px;
+   
+}
+
+.post-actions button i {
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+.post-actions button:hover {
+    background: #f0f2f5;
+    color: #1877f2;
+}
+
+.post-actions button:active {
+    background: #e4e6eb;
+}
+
 
 .file-label {
     cursor: pointer;
@@ -188,13 +262,14 @@ body {
 
 .post-example-box{
     width: 100%;
-    max-width: 700px;
+    max-width: 600px;
     background: #fff;
     padding: 10px;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     margin-top: 15px;
-    margin-left: 40px;
+    margin-left: 5px;
+    height: auto;
 
 }
 
@@ -228,16 +303,74 @@ body {
     margin-left: 60px;
     margin-top: -20px;
 }
-.post-images {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
+
+.carousel {
+    position: relative;
+    width: 100%;
+    max-width: 600px; /* Ajusta según tu diseño */
+    overflow: hidden;
+    border-radius: 10px;
 }
+
+.carousel-images {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    max-width: 100%;
+}
+
+.carousel-images img,
+.carousel-images video {
+    width: 100%;
+    max-height: 400px;
+    flex-shrink: 0;
+    object-fit: cover;
+}
+
+.prev, .next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 10;
+}
+
+.prev { left: 10px; }
+.next { right: 10px; }
+
+
 
 .post-image {
     width: 100%;
     max-width: 300px;
     border-radius: 8px;
+    height: 400px;
+    align-items: center;
+    justify-content: center;
+    margin-left: 20%;
+}
+.post-video {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 8px;
+    height: 400px;
+    align-items: center;
+    justify-content: center;
+    margin-left: 20%;
+}
+
+.post-media {
+    width: 100%;
+    height: 400px;
+    
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    
 }
 
 @media (max-width: 768px) {
@@ -268,5 +401,23 @@ body {
         margin-top: 10px;
         margin-left: 0%;
 
+    }
+    .post-image {
+        width: 100%;
+        max-width: auto;
+        border-radius: 8px;
+        height: 400px;
+        align-items: center;
+        justify-content: center;
+        margin-left: 5%;
+    }
+    .post-video {
+        width: 100%;
+        max-width: 300px;
+        border-radius: 8px;
+        height: 400px;
+        align-items: center;
+        justify-content: center;
+        margin-left: 5%;
     }
 }

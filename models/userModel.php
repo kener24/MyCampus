@@ -11,20 +11,21 @@ class Usuario {
         $this->conn = $database->getConnection();
     }
 
-    public function crearUsuario($nombre, $correo, $password, $foto, $foto_portada=null) {
+    public function crearUsuario($nombre, $correo, $password, $foto, $foto_portada = null) {
         $checkQuery = "SELECT id FROM " . $this->table_name . " WHERE correo = :correo";
         $checkStmt = $this->conn->prepare($checkQuery);
         $checkStmt->bindParam(":correo", $correo);
         $checkStmt->execute();
-
+    
         if ($checkStmt->rowCount() > 0) {
-            return "El correo ya está registrado."; // O puedes retornar false si prefieres manejarlo de otra forma
+            return "El correo ya está registrado."; 
         }
-
-
-        $query = "INSERT INTO " . $this->table_name . " (nombre, correo, password, foto_perfil, foto_portada, fecha_creacion) 
-                  VALUES (:nombre, :correo, :password, :foto, :foto_portada, NOW())";
-        
+    
+        // Nueva consulta con los campos `ultimo_login` y `estado`
+        $query = "INSERT INTO " . $this->table_name . " 
+                  (nombre, correo, password, foto_perfil, foto_portada, fecha_creacion, ultimo_login, estado) 
+                  VALUES (:nombre, :correo, :password, :foto, :foto_portada, NOW(), '', -1)";
+    
         $stmt = $this->conn->prepare($query);
         
         // Encriptar contraseña
@@ -35,13 +36,16 @@ class Usuario {
         $stmt->bindParam(":correo", $correo);
         $stmt->bindParam(":password", $hashed_password);
         $stmt->bindParam(":foto", $foto, PDO::PARAM_LOB);
-        $stmt->bindParam(":foto_portada", $foto_portada, PDO::PARAM_LOB);  // Vincula el nuevo parámetro
+        $stmt->bindParam(":foto_portada", $foto_portada, PDO::PARAM_LOB);
     
         if ($stmt->execute()) {
-            return true;
+            // Retornar el ID del usuario recién creado
+            return $this->conn->lastInsertId();
         }
+    
         return false;
     }
+    
 
      // Método para guardar información de perfil
      public function guardarInformacionPerfil($id_usuario, $descripcion, $estado, $edad, $trabajo, $ciudad, $campus, $carrera) {
@@ -87,6 +91,33 @@ class Usuario {
     
         return $stmt->execute();
     }
+
+    public function activarCuenta($user_id) {
+        try {
+            $query = "UPDATE users SET estado = 1 WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $user_id);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Error al activar la cuenta: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    public function obtenerUsuarioPorEmail($correo) {
+        try {
+            $query = "SELECT id FROM users WHERE correo = :correo";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':correo', $correo);
+            $stmt->execute();
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $resultado ? $resultado['id'] : null;
+        } catch (PDOException $e) {
+            error_log("Error al obtener usuario por correo: " . $e->getMessage());
+            return null;
+        }
+    }
+    
     
     public function actualizarFotoPortada($id_usuario, $foto_perfil) {
         $query = "UPDATE users SET foto_portada = :foto_portada WHERE id = :id_usuario";
