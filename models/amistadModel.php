@@ -41,20 +41,19 @@ class Amistad {
 
     // Obtener notificaciones
     public function obtenerNotificacionesAmistad($usuario_id) {
-        $query = "SELECT n.id, u.id AS id_solicitante, u.nombre AS emisor_nombre, u.foto_perfil, n.mensaje,n.fecha
-        FROM notificaciones n
-        JOIN solicitudes s ON n.id_usuario = s.id_receptor 
-                        AND n.tipo = 'solicitud_amistad'
-        JOIN users u ON s.id_solicitante = u.id
-        WHERE (s.id_solicitante, n.fecha) IN (
-            SELECT s2.id_solicitante, MAX(n2.fecha) 
-            FROM notificaciones n2
-            JOIN solicitudes s2 ON n2.id_usuario = s2.id_receptor 
-                            AND n2.tipo = 'solicitud_amistad'
-            WHERE n2.id_usuario = :usuario_id
-            GROUP BY s2.id_solicitante
-        )
-        ORDER BY n.fecha DESC;";
+                $query = "SELECT 
+            n.id,
+            n.id_usuario,
+            n.tipo,
+            n.mensaje,
+            n.fecha
+        FROM 
+            notificaciones n
+        WHERE 
+            n.id_usuario = :usuario_id
+            AND n.tipo = 'solicitud_amistad'
+        ORDER BY 
+            n.fecha DESC;";
 
 
     
@@ -149,9 +148,15 @@ class Amistad {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
-    
-    
-    
-    
+public function obtenerNombreAmigo($idAmigo) {
+    $query = "SELECT nombre FROM users WHERE id = :idAmigo";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(':idAmigo', $idAmigo);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? $result['nombre'] : null;
 }
-?>
+    
+   
+}
+
