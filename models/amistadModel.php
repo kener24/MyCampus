@@ -147,7 +147,14 @@ class Amistad {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
+    public function obtenerNombreAmigo($idAmigo) {
+        $query = "SELECT nombre FROM users WHERE id = :idAmigo";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':idAmigo', $idAmigo);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? $result['nombre'] : null;
+    }
     
     
     

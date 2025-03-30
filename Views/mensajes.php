@@ -2,14 +2,35 @@
 session_start();
 require_once '../config/database.php';
 require_once '../models/amistadModel.php';
+require_once '../models/chatModel.php';
 
+// Inicializar la conexión a la base de datos
 $database = new Database();
 $conn = $database->getConnection();
 
+// Obtener el ID del usuario actual desde la sesión
 $id_usuario_actual = $_SESSION['usuario_id'];
 
+// Inicializar los modelos
 $amistad = new Amistad($conn);
+$chatModel = new ChatModel($conn);
+
+// Obtener la lista de amigos
 $mis_amigos = $amistad->obtenerMisAmigos($id_usuario_actual);
+
+// Obtener los chats existentes
+$chatsExistentes = $chatModel->obtenerChats($id_usuario_actual);
+
+// Obtener IDs de amigos con chats existentes
+$amigosConChats = [];
+foreach ($chatsExistentes as $chat) {
+    $amigosConChats[] = $chat['usuario_id'];
+}
+
+// Filtrar amigos sin chats
+$amigosSinChats = array_filter($mis_amigos, function ($amigo) use ($amigosConChats) {
+    return !in_array($amigo['id'], $amigosConChats);
+});
 ?>
 
 <!DOCTYPE html>
@@ -107,14 +128,26 @@ $mis_amigos = $amistad->obtenerMisAmigos($id_usuario_actual);
         </div>
 
         <!-- Lista de chats -->
-        <div class="friend-request">
-            <a href="chat.php" class="d-flex align-items-center text-decoration-none text-dark">
-                <img src="Home/img-amigos.php?id=ID_DEL_USUARIO" alt="Perfil">
-                <div>
-                    <p>NOMBRE_DEL_USUARIO</p>
-                </div>
-            </a>
-        </div>
+        <?php if (count($chatsExistentes) > 0): ?>
+            <?php foreach ($chatsExistentes as $chat): 
+                $idAmigo = $chat['usuario_id']; // Asegúrate de que esta clave existe en el array
+                $nombreAmigo = $amistad->obtenerNombreAmigo($idAmigo);
+                if (!$nombreAmigo) {
+                    $nombreAmigo = "Amigo desconocido"; // Valor por defecto
+                }
+            ?>
+            <div class="friend-request">
+            <a href="chat.php?chat_id=<?= $chat['chat_id']; ?>&nombre_usuario=<?= urlencode($nombreAmigo); ?>&amigo_id=<?= $idAmigo; ?>">
+                    <img src="Home/img-amigos.php?id=<?= $idAmigo ?>" alt="Perfil">
+                    <div>
+                        <p><?= htmlspecialchars($nombreAmigo) ?></p>
+                    </div>
+                </a>
+            </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p class="text-center">No tienes chats aún.</p>
+        <?php endif; ?>
 
         <!-- Modal para crear nuevo chat -->
         <div class="modal fade" id="nuevoChatModal" tabindex="-1" aria-labelledby="nuevoChatLabel" aria-hidden="true">
@@ -127,26 +160,24 @@ $mis_amigos = $amistad->obtenerMisAmigos($id_usuario_actual);
                     <div class="modal-body">
                         <p>Selecciona un amigo para iniciar el chat:</p>
                         <ul class="list-group">
-                        <?php
-                    if (count($mis_amigos) > 0) {
-                        foreach ($mis_amigos as $amigo) {
-                            echo '<div class="friend-request">';
-                            echo '<a href="perfil-amigo.php?id=' . $amigo['id'] . '" class="d-flex align-items-center text-decoration-none text-dark">';
-                            echo '<img src="Home/img-amigos.php?id=' . $amigo['id'] . '" alt="Perfil">';
-                            echo '<div>';
-                            echo '<p>' . $amigo['nombre'] . '</p>';
-                            echo '</div>';
-                            echo '</a>';
-                            echo '<form action="../Controller/chatController.php" method="post" style="margin-left: auto;">';
-                            echo '<input type="hidden" name="id_amigo" value="' . $amigo['id'] . '">';
-                            echo '<button type="submit" name="crear_chat" class="btn btn-primary btn-sm">Crear Chat</button>';
-                            echo '</form>';
-                            echo '</div>';
-                        }
-                    } else {
-                        echo "<p class='text-center'>No tienes amigos aún.</p>";
-                    }
-                    ?>
+                            <?php if (count($amigosSinChats) > 0): ?>
+                                <?php foreach ($amigosSinChats as $amigo): ?>
+                                    <div class="friend-request">
+                                        <a href="perfil-amigo.php?id=<?= $amigo['id'] ?>" class="d-flex align-items-center text-decoration-none text-dark">
+                                            <img src="Home/img-amigos.php?id=<?= $amigo['id'] ?>" alt="Perfil">
+                                            <div>
+                                                <p><?= htmlspecialchars($amigo['nombre']) ?></p>
+                                            </div>
+                                        </a>
+                                        <form action="../Controller/chatController.php" method="post" style="margin-left: auto;">
+                                            <input type="hidden" name="id_amigo" value="<?= $amigo['id'] ?>">
+                                            <button type="submit" name="crear_chat" class="btn btn-primary btn-sm">Crear Chat</button>
+                                        </form>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p class="text-center">No hay amigos disponibles para crear un chat.</p>
+                            <?php endif; ?>
                         </ul>
                     </div>
                 </div>

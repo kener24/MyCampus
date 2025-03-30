@@ -1,7 +1,21 @@
 <?php
 session_start();
 
-$name = $_SESSION["usuario_nombre"];
+// Verifica si el usuario está autenticado
+if (!isset($_SESSION['usuario_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+// Verifica si los parámetros necesarios están en la URL
+if (!isset($_GET['chat_id']) || !isset($_GET['nombre_usuario']) || !isset($_GET['amigo_id'])) {
+    die("Error: Parámetros faltantes en la URL.");
+}
+
+// Obtén los parámetros de la URL
+$chatId = $_GET['chat_id'];
+$nombreUsuario = $_GET['nombre_usuario']; // Nombre del amigo con el que estás chateando
+$amigoId = $_GET['amigo_id']; // ID del amigo
 ?>
 
 <!DOCTYPE html>
@@ -10,7 +24,7 @@ $name = $_SESSION["usuario_nombre"];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mensajes</title>
+    <title>Chat</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="icon" type="image/png" href="Home/logo.png">
@@ -32,14 +46,6 @@ $name = $_SESSION["usuario_nombre"];
             height: 90vh;
         }
 
-        .header {
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            padding: 15px 0;
-            border-bottom: 1px solid #ddd;
-        }
-
         .retroceso img {
             width: 25px;
             height: 25px;
@@ -52,8 +58,6 @@ $name = $_SESSION["usuario_nombre"];
             gap: 15px;
             padding: 10px;
             border-bottom: 1px solid #ddd;
-            margin-top: -40px;
-            margin-left: 30px;
         }
 
         .friend-info img {
@@ -70,6 +74,9 @@ $name = $_SESSION["usuario_nombre"];
             display: flex;
             flex-direction: column;
             gap: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
         }
 
         .message {
@@ -118,21 +125,13 @@ $name = $_SESSION["usuario_nombre"];
         @media (max-width: 768px) {
             .container-chat {
                 width: 95%;
-                margin-top: -65px;
-                height: 770px;
-            }
-
-            #menu {
-                display: none;
-                /* Oculta el menú en dispositivos pequeños */
+                height: 90vh;
             }
 
             .retroceso img {
                 width: 30px;
                 height: 30px;
-                margin-left: -5px;
             }
-
         }
     </style>
 </head>
@@ -142,68 +141,84 @@ $name = $_SESSION["usuario_nombre"];
         <?php include_once "menu.php"; ?>
     </div>
     <div class="container-chat">
-
         <div class="retroceso">
             <a href="mensajes.php">
-                <img src="Home/retroceso.png" alt="" class="img-retroceso">
+                <img src="Home/retroceso.png" alt="Volver" class="img-retroceso">
             </a>
         </div>
         <div class="friend-info">
-
-
-            <img src="Home/img-amigos.php?id=ID_DEL_USUARIO" alt="Perfil">
-            <p><strong>NOMBRE_DEL_USUARIO</strong></p>
-
+            <img src="Home/img-amigos.php?id=<?= $amigoId; ?>" alt="Perfil">
+            <p><strong><?= htmlspecialchars($nombreUsuario); ?></strong></p>
         </div>
-
         <div class="chat-box">
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
-            <div class="message received">Hola, ¿cómo estás?</div>
-            <div class="message sent">¡Hola! Todo bien, ¿y tú?</div>
+            <!-- Los mensajes se cargarán aquí dinámicamente -->
         </div>
-
         <div class="message-input">
             <textarea placeholder="Escribe un mensaje..."></textarea>
             <button><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+$(document).ready(function() {
+    // Obtener el valor de chatId desde la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatId = urlParams.get('chat_id');  // Obtiene el parámetro 'chat_id' de la URL
+
+    if (!chatId) {
+        console.error("Error: chatId no está definido en la URL");
+        return;
+    }
+
+    // Asegurarse de que chatId esté disponible antes de cargar los mensajes
+    let usuarioId = <?= $_SESSION['usuario_id']; ?>;
+
+    function cargarMensajes() {
+        $.get("../Controller/obtenerMensajes.php", { chat_id: chatId }, function (data) {
+            console.log("Respuesta del servidor:", data);  // Depuración de la respuesta
+
+            try {
+                // Suponiendo que la respuesta ya es un objeto JSON
+                let mensajes = data;
+
+                if (Array.isArray(mensajes)) {
+                    let chatBox = $(".chat-box");
+                    chatBox.html("");
+
+                    mensajes.forEach(m => {
+                        let clase = (m.user_id == usuarioId) ? "message sent" : "message received";
+                        chatBox.append(`<div class="${clase}">${m.contenido}</div>`);
+                    });
+
+                    chatBox.scrollTop(chatBox[0].scrollHeight);
+                } else {
+                    console.error("Error: Los datos no son un arreglo válido.");
+                }
+            } catch (e) {
+                console.error("Error al manejar los datos:", e);
+                console.error("Respuesta del servidor:", data);
+            }
+        }, 'json');  // Especificar que la respuesta debe ser JSON
+    }
+
+    $(".message-input button").click(function () {
+        let mensaje = $(".message-input textarea").val().trim();
+        if (mensaje === "") return;
+
+        $.post("../Controller/enviarMensaje.php", { chat_id: chatId, mensaje }, function (response) {
+            if (response.status === "success") {
+                $(".message-input textarea").val("");
+                cargarMensajes();
+            }
+        }, 'json');  // Asegúrate de especificar el tipo 'json' para que jQuery maneje la respuesta
+    });
+
+    setInterval(cargarMensajes, 2000);
+    cargarMensajes();
+});
+</script>
+
 </body>
 
 </html>

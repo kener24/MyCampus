@@ -113,7 +113,7 @@ $usuario_id = $_SESSION["usuario_id"];
                 <div class="post-example-header">
                     <img src="Home/img-post.php?id=<?php echo $publicacion['original_user_id']; ?>" alt="Perfil" class="profile-pic">
                     <div>
-                        <?php echo '<a href="perfil-amigo.php?id=' . $publicacion['original_post_id'] . '" class="no-deco">'; ?>
+                        <?php echo '<a href="perfil-amigo.php?id=' . $publicacion['original_user_id'] . '" class="no-deco">'; ?>
                         <p class="username"><?php echo htmlspecialchars($publicacion['original_user']); ?></p>
                         </a>
                         <p class="post-date">
