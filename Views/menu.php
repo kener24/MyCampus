@@ -35,12 +35,18 @@
 
 
         <div class="nav-icons d-flex align-items-center">
-            <div class="profile-menu ms-2">
-                <a href="perfil.php"><img src="Home/imagen.php" alt="Perfil"><span>Perfil</span></a>
-            </div>
+            <div class="profile-menu ms-2"> 
+                <img src="Home/imagen.php" alt="Perfil">
+                <span>Perfil</span>
+                <!-- Menú desplegable -->
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="perfil.php">Mi perfil</a>
+                    <a class="dropdown-item" href="edit-perfil.php">Editar perfil</a>
+                    <a class="dropdown-item" href="#" onclick="confirmLogout()">Cerrar sesión</a>
+                </div>
+            </div>   
         </div>
     </nav>
 
-</body>
 
 </html>

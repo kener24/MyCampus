@@ -54,18 +54,36 @@
     font-size: 12px;
 }
 
+.profile-menu {
+    position: relative;
+    display: flex;
+    flex-direction: column; /* Asegúrate de que los elementos estén en columna */
+    align-items: center;
+    cursor: pointer;
+    text-align: center;
+}
+
 .profile-menu img {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     object-fit: cover;
-    cursor: pointer;
+    cursor: pointer; /* Mantén el cursor como puntero si quieres que parezca interactivo */
     border: 2px solid white;
+    display: block;
+    margin: 0 auto;
+}
+
+.profile-menu span {
+    display: block;
+    margin-top: 5px;
+    font-size: 14px;
+    color: #fff;
 }
 
 .profile-menu a {
     color: white !important;
-    font-size: 22px;
+    font-size: 18px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -75,6 +93,39 @@
 .profile-menu a span {
     font-size: 12px;
 }
+
+
+
+/* Menú desplegable */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: -13px;
+    background-color: #008f39;
+    
+    border: 1px solid #008f39;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    display: none;
+}
+
+.profile-menu:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu a {
+    color: rgb(253, 253, 253);
+    text-decoration: none;
+    display: block;
+    padding: 5px 10px;
+}
+
+.dropdown-menu a:hover {
+    background-color: #007e2a;
+}
+
+/* Navbar inferior (en móviles) */
 
 
 body {
