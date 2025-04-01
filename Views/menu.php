@@ -42,7 +42,7 @@
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="perfil.php">Mi perfil</a>
                     <a class="dropdown-item" href="edit-perfil.php">Editar perfil</a>
-                    <a class="dropdown-item" href="#" onclick="confirmLogout()">Cerrar sesión</a>
+                    <a class="dropdown-item" href="../logout.php">Cerrar sesión</a>
                 </div>
             </div>   
         </div>
