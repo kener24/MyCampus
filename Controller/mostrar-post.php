@@ -15,5 +15,9 @@ class PostController {
     public function mostrarPublicacionesPorUsuario($userId) {
         return $this->model->obtenerPublicacionesPorUsuario($userId);
     }
+
+    public function mostrarPublicacionesPorId($posId) {
+        return $this->model->obtenerPublicacionesPorPostId($posId);
+    }
 }
 ?>

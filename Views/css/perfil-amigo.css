@@ -1,6 +1,12 @@
 body {
     background-color: #f0f2f5;
 }
+.publics{
+    
+    align-items: center;
+    justify-content: center;
+
+}
 .profile-container {
     width: 100%;
     max-width: 800px;

@@ -20,6 +20,7 @@ $amigoId = $_GET['amigo_id']; // ID del amigo
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,6 +32,7 @@ $amigoId = $_GET['amigo_id']; // ID del amigo
         body {
             background-color: #f0f2f5;
         }
+
         .container-chat {
             width: 600px;
             max-width: 100%;
@@ -43,11 +45,13 @@ $amigoId = $_GET['amigo_id']; // ID del amigo
             flex-direction: column;
             height: 90vh;
         }
+
         .retroceso img {
             width: 25px;
             height: 25px;
             margin-left: -5px;
         }
+
         .friend-info {
             display: flex;
             align-items: center;
@@ -55,12 +59,14 @@ $amigoId = $_GET['amigo_id']; // ID del amigo
             padding: 10px;
             border-bottom: 1px solid #ddd;
         }
+
         .friend-info img {
             width: 45px;
             height: 45px;
             border-radius: 50%;
             object-fit: cover;
         }
+
         .chat-box {
             flex-grow: 1;
             overflow-y: auto;
@@ -72,28 +78,33 @@ $amigoId = $_GET['amigo_id']; // ID del amigo
             border: 1px solid #ddd;
             border-radius: 8px;
         }
+
         .message {
             max-width: 75%;
             padding: 10px;
             border-radius: 10px;
             word-wrap: break-word;
         }
+
         .message.sent {
             background: rgb(81, 237, 92);
             color: white;
             align-self: flex-end;
         }
+
         .message.received {
             background: #e4e6eb;
             color: black;
             align-self: flex-start;
         }
+
         .message-input {
             display: flex;
             gap: 10px;
             padding: 10px;
             border-top: 1px solid #ddd;
         }
+
         .message-input textarea {
             flex-grow: 1;
             resize: none;
@@ -101,6 +112,7 @@ $amigoId = $_GET['amigo_id']; // ID del amigo
             border-radius: 20px;
             border: 1px solid #ccc;
         }
+
         .message-input button {
             background: rgb(27, 172, 20);
             color: white;
@@ -109,11 +121,13 @@ $amigoId = $_GET['amigo_id']; // ID del amigo
             border-radius: 20px;
             cursor: pointer;
         }
+
         @media (max-width: 768px) {
             .container-chat {
                 width: 95%;
                 height: 90vh;
             }
+
             .retroceso img {
                 width: 30px;
                 height: 30px;
@@ -121,6 +135,7 @@ $amigoId = $_GET['amigo_id']; // ID del amigo
         }
     </style>
 </head>
+
 <body>
     <div id="menu">
         <?php include_once "menu.php"; ?>
@@ -144,71 +159,66 @@ $amigoId = $_GET['amigo_id']; // ID del amigo
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        const chatId = <?= $chatId; ?>; // ID del chat
-        const userId = <?= $_SESSION['usuario_id']; ?>; // ID del usuario actual
+$(document).ready(function() {
+    // Obtener el valor de chatId desde la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatId = urlParams.get('chat_id');  // Obtiene el parámetro 'chat_id' de la URL
 
-        // Función para cargar mensajes
-        function cargarMensajes() {
-            fetch('../Controller/chatController.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({
-                    action: 'getMessages',
-                    chat_id: chatId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const chatBox = document.querySelector('.chat-box');
-                chatBox.innerHTML = ''; // Limpia el chat
+    if (!chatId) {
+        console.error("Error: chatId no está definido en la URL");
+        return;
+    }
 
-                data.forEach(mensaje => {
-                    const messageDiv = document.createElement('div');
-                    messageDiv.classList.add('message');
-                    messageDiv.classList.add(mensaje.user_id == userId ? 'sent' : 'received');
-                    messageDiv.innerHTML = `
-                        <strong>${mensaje.nombre}:</strong> ${mensaje.contenido}
-                    `;
-                    chatBox.appendChild(messageDiv);
-                });
+    // Asegurarse de que chatId esté disponible antes de cargar los mensajes
+    let usuarioId = <?= $_SESSION['usuario_id']; ?>;
 
-                chatBox.scrollTop = chatBox.scrollHeight; // Desplázate al final
-            })
-            .catch(error => {
-                console.error('Error al cargar los mensajes:', error);
-            });
-        }
+    function cargarMensajes() {
+        $.get("../Controller/obtenerMensajes.php", { chat_id: chatId }, function (data) {
+            console.log("Respuesta del servidor:", data);  // Depuración de la respuesta
 
-        // Función para enviar mensajes
-        document.querySelector('.message-input button').addEventListener('click', () => {
-            const textarea = document.querySelector('.message-input textarea');
-            const contenido = textarea.value.trim();
+            try {
+                // Suponiendo que la respuesta ya es un objeto JSON
+                let mensajes = data;
 
-            if (contenido) {
-                fetch('../Controller/chatController.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        action: 'sendMessage',
-                        chat_id: chatId,
-                        contenido: contenido
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        textarea.value = ''; // Limpia el campo de texto
-                        cargarMensajes(); // Actualiza el chat
-                    } else {
-                        alert('Error al enviar el mensaje.');
-                    }
-                });
+                if (Array.isArray(mensajes)) {
+                    let chatBox = $(".chat-box");
+                    chatBox.html("");
+
+                    mensajes.forEach(m => {
+                        let clase = (m.user_id == usuarioId) ? "message sent" : "message received";
+                        chatBox.append(`<div class="${clase}">${m.contenido}</div>`);
+                    });
+
+                    chatBox.scrollTop(chatBox[0].scrollHeight);
+                } else {
+                    console.error("Error: Los datos no son un arreglo válido.");
+                }
+            } catch (e) {
+                console.error("Error al manejar los datos:", e);
+                console.error("Respuesta del servidor:", data);
             }
-        });
+        }, 'json');  // Especificar que la respuesta debe ser JSON
+    }
 
-        // Cargar mensajes automáticamente cada segundo
-        setInterval(cargarMensajes, 1000);
-    </script>
+    $(".message-input button").click(function () {
+        let mensaje = $(".message-input textarea").val().trim();
+        if (mensaje === "") return;
+
+        $.post("../Controller/enviarMensaje.php", { chat_id: chatId, mensaje }, function (response) {
+            if (response.status === "success") {
+                $(".message-input textarea").val("");
+                cargarMensajes();
+            }
+        }, 'json');  // Asegúrate de especificar el tipo 'json' para que jQuery maneje la respuesta
+    });
+
+    setInterval(cargarMensajes, 2000);
+    cargarMensajes();
+});
+</script>
+
 </body>
+
 </html>
