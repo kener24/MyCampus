@@ -65,6 +65,16 @@ body {
     flex: 1;
     margin: 0 5px;
 }
+.comentarios {
+    display: none; /* Oculto por defecto */
+    position: fixed; /* Para que cubra toda la pantalla */
+    top: 0;
+    width: 100%;
+    height: 100%;
+     /* Fondo semi-transparente */
+    align-items: center;
+    justify-content: center;
+}
 @media (max-width: 768px) {
     .profile-container {
         width: 95%;

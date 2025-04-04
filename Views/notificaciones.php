@@ -3,11 +3,12 @@
 session_start();
 require_once '../models/amistadModel.php';
 require_once '../config/database.php';
+include '../config/session.php'; 
 
 if (!isset($_SESSION['usuario_id'])) {
-    die("Acceso denegado.");
+    header("Location: ../index.php?error=no_autenticado");
+    exit();
 }
-
 
 
 $database = new Database();
@@ -26,6 +27,7 @@ $notificaciones = $notificacionModel->obtenerNotificacionesAmistad($_SESSION['us
     <title>Solicitudes de Amistad</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <meta http-equiv="refresh" content="901">
     <link rel="icon" type="image/png" href="Home/logo.png">
     <style>
     body {
@@ -123,13 +125,13 @@ $notificaciones = $notificacionModel->obtenerNotificacionesAmistad($_SESSION['us
         <?php else: ?>
             <?php foreach ($notificaciones as $notificacion): ?>
                 <div class="friend-request">
-                    <a href="perfil-amigo.php?id=<?= isset($notificacion['id_solicitante']) ? $notificacion['id_solicitante'] : ''; ?>">
-                        <?php if (!empty($notificacion['id_solicitante'])): ?>
-                            <img src="Home/img-amigos.php?id=<?= urlencode($notificacion['id_solicitante']); ?>" alt="Foto de <?= htmlspecialchars($notificacion['emisor_nombre']); ?>">
+                    <a href="solicitudes.php">
+                        <?php if (!empty($notificacion['origen_id'])): ?>
+                            <img src="Home/img-amigos.php?id=<?= urlencode($notificacion['origen_id']); ?>" alt="Foto de <?= htmlspecialchars($notificacion['nombre_origen']); ?>">
                         <?php else: ?>
                             <img src="Home/default.png" alt="Usuario desconocido">
                         <?php endif; ?>
-                        <p><?= htmlspecialchars($notificacion['emisor_nombre']); ?> te ha enviado una solicitud de amistad.</p>
+                        <p><?= htmlspecialchars($notificacion['nombre_origen'] . ' ' . $notificacion['mensaje']); ?></p>
                     </a>
                 </div>
             <?php endforeach; ?>

@@ -30,32 +30,33 @@ class Amistad {
         $stmt->execute(['id_solicitante' => $id_solicitante, 'id_receptor' => $id_receptor]);
 
         // Crear la notificación
-        $mensaje = "Tienes una nueva solicitud de amistad.";
-        $query = "INSERT INTO {$this->table_notificaciones} (id_usuario, tipo, mensaje) 
-                  VALUES (:id_receptor, 'solicitud_amistad', :mensaje)";
+        $mensaje = "Te ha enviado una nueva solicitud de amistad.";
+        $query = "INSERT INTO {$this->table_notificaciones} (id_usuario, origen_id, tipo, mensaje) 
+                  VALUES (:id_receptor, :origen_id,'solicitud_amistad', :mensaje)";
         $stmt = $this->conn->prepare($query);
-        $stmt->execute(['id_receptor' => $id_receptor, 'mensaje' => $mensaje]);
+        $stmt->execute(['id_receptor' => $id_receptor, 'origen_id' =>$id_solicitante,'mensaje' => $mensaje]);
 
         return "Solicitud enviada con éxito.";
     }
 
     // Obtener notificaciones
     public function obtenerNotificacionesAmistad($usuario_id) {
-                $query = "SELECT 
-            n.id,
-            n.id_usuario,
-            n.tipo,
-            n.mensaje,
-            n.fecha
-        FROM 
-            notificaciones n
-        WHERE 
-            n.id_usuario = :usuario_id
-            AND n.tipo = 'solicitud_amistad'
-        ORDER BY 
-            n.fecha DESC;";
-
-
+        $query = "SELECT 
+                    n.id,
+                    n.id_usuario,
+                    n.origen_id,
+                    u.nombre AS nombre_origen,
+                    n.tipo,
+                    n.mensaje,
+                    n.fecha
+                FROM 
+                    notificaciones n
+                JOIN 
+                    users u ON n.origen_id = u.id
+                WHERE 
+                    n.id_usuario = :usuario_id
+                ORDER BY 
+                    n.fecha DESC;";
     
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":usuario_id", $usuario_id, PDO::PARAM_INT);
@@ -63,6 +64,8 @@ class Amistad {
     
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
+    
     
 
     public function obtenerSolicitudesPendientes($id_usuario) {
@@ -103,11 +106,12 @@ class Amistad {
                 $stmtInsert->execute();
     
                 
-                $mensaje = "¡" . $nombreUsuarioActual . " aceptó tu solicitud de amistad!";
-                $queryNotificacion = "INSERT INTO notificaciones (id_usuario, tipo, mensaje) 
-                                      VALUES (:usuario_id, 'amistad_aceptada', :mensaje)";
+                $mensaje = "¡aceptó tu solicitud de amistad!";
+                $queryNotificacion = "INSERT INTO notificaciones (id_usuario,origen_id, tipo, mensaje) 
+                                      VALUES (:usuario_id, :origen_id, 'amistad_aceptada', :mensaje)";
                 $stmtNotificacion = $this->conn->prepare($queryNotificacion);
                 $stmtNotificacion->bindParam(":usuario_id", $solicitud['id_solicitante'], PDO::PARAM_INT);
+                $stmtNotificacion->bindParam(":origen_id", $solicitud['id_receptor'], PDO::PARAM_INT);
                 $stmtNotificacion->bindParam(":mensaje", $mensaje, PDO::PARAM_STR);
                 $stmtNotificacion->execute();
     
@@ -129,11 +133,19 @@ class Amistad {
     
     
     public function rechazarSolicitud($id_solicitud) {
-        $queryUpdate = "UPDATE solicitudes SET estado = 'rechazado' WHERE id = :id_solicitud";
-        $stmtUpdate = $this->conn->prepare($queryUpdate);
-        $stmtUpdate->bindParam(":id_solicitud", $id_solicitud, PDO::PARAM_INT);
-        return $stmtUpdate->execute();
+        try {
+            $query = "DELETE FROM solicitudes WHERE id = :id_solicitud";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":id_solicitud", $id_solicitud, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            error_log("Error en rechazarSolicitud: " . $e->getMessage());
+            return false;
+        }
     }
+    
 
     public function obtenerMisAmigos($id_usuario) {
         $query = "SELECT u.id, u.nombre 
@@ -155,6 +167,37 @@ class Amistad {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result ? $result['nombre'] : null;
     }
+
+    public function eliminarAmigo($id_usuario, $id_amigo) {
+        try {
+            $this->conn->beginTransaction();
+    
+            // Eliminar la relación de amistad
+            $queryAmistad = "DELETE FROM amigos 
+                             WHERE (usuario_id = :id_usuario AND amigo_id = :id_amigo)
+                                OR (usuario_id = :id_amigo AND amigo_id = :id_usuario)";
+            $stmtAmistad = $this->conn->prepare($queryAmistad);
+            $stmtAmistad->bindParam(":id_usuario", $id_usuario, PDO::PARAM_INT);
+            $stmtAmistad->bindParam(":id_amigo", $id_amigo, PDO::PARAM_INT);
+            $stmtAmistad->execute();
+    
+            // Eliminar cualquier solicitud de amistad entre ambos
+            $querySolicitud = "DELETE FROM solicitudes
+                               WHERE (id_solicitante = :id_usuario AND id_receptor = :id_amigo)
+                                  OR (id_solicitante = :id_amigo AND id_receptor = :id_usuario)";
+            $stmtSolicitud = $this->conn->prepare($querySolicitud);
+            $stmtSolicitud->bindParam(":id_usuario", $id_usuario, PDO::PARAM_INT);
+            $stmtSolicitud->bindParam(":id_amigo", $id_amigo, PDO::PARAM_INT);
+            $stmtSolicitud->execute();
+    
+            $this->conn->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            return false;
+        }
+    }
+    
     
     
     
