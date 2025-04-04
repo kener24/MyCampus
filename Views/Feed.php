@@ -454,8 +454,53 @@ $usuario_id = $_SESSION["usuario_id"];
             });
         });
 
-        // Código JavaScript para manejar el clic en "Me gusta" usando AJAX
-        $(document).on('click', '.btn-me-gusta', function () {
+       
+        $(document).on('submit', '.form-comentario', function (e) {
+            e.preventDefault(); // Evitar recargar la página
+
+            var postId = $(this).data('post-id');
+            var comentario = $(this).find('textarea').val();
+
+            $.ajax({
+                url: '../Controller/comentarioController.php',
+                method: 'POST',
+                data: { post_id: postId, comentario: comentario },
+                success: function (response) {
+                    // Si el comentario se publicó correctamente, actualiza el contador de comentarios
+                    if (response.success) {
+                        actualizarContadorComentarios(postId);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log("Error AJAX:", status, error);
+                }
+            });
+        });
+
+        function actualizarContadorComentarios(postId) {
+            var contadorElemento = $('.coment-count[data-post-id="' + postId + '"]').find('.contador');
+
+            $.ajax({
+                url: '../Controller/comentarioController.php',
+                method: 'GET',
+                data: { post_id: postId, cache_buster: new Date().getTime() }, // Evita caché
+                dataType: 'json',
+                success: function (response) {
+                    if (response.coments_count !== undefined) {
+                        contadorElemento.text(response.coments_count); // Actualiza el contador en el HTML
+                    } else {
+                        console.log("Error: El servidor no devolvió coments_count.");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log("Error AJAX:", status, error);
+                }
+            });
+        }
+
+
+         // Código JavaScript para manejar el clic en "Me gusta" usando AJAX
+         $(document).on('click', '.btn-me-gusta', function () {
             var postId = $(this).data('post-id'); // Obtén el ID de la publicación desde el atributo data-post-id
             var userId = <?php echo $userId; ?>; // Asume que $userId está disponible en PHP
 
@@ -522,51 +567,6 @@ $usuario_id = $_SESSION["usuario_id"];
             // Llama a la función cada segundo (1000 milisegundos)
             setInterval(actualizarContadorLikes, 1000);
         });
-        $(document).on('submit', '.form-comentario', function (e) {
-            e.preventDefault(); // Evitar recargar la página
-
-            var postId = $(this).data('post-id');
-            var comentario = $(this).find('textarea').val();
-
-            $.ajax({
-                url: '../Controller/comentarioController.php',
-                method: 'POST',
-                data: { post_id: postId, comentario: comentario },
-                success: function (response) {
-                    // Si el comentario se publicó correctamente, actualiza el contador de comentarios
-                    if (response.success) {
-                        actualizarContadorComentarios(postId);
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.log("Error AJAX:", status, error);
-                }
-            });
-        });
-
-        function actualizarContadorComentarios(postId) {
-            var contadorElemento = $('.coment-count[data-post-id="' + postId + '"]').find('.contador');
-
-            $.ajax({
-                url: '../Controller/comentarioController.php',
-                method: 'GET',
-                data: { post_id: postId, cache_buster: new Date().getTime() }, // Evita caché
-                dataType: 'json',
-                success: function (response) {
-                    if (response.coments_count !== undefined) {
-                        contadorElemento.text(response.coments_count); // Actualiza el contador en el HTML
-                    } else {
-                        console.log("Error: El servidor no devolvió coments_count.");
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.log("Error AJAX:", status, error);
-                }
-            });
-        }
-
-
-
 
 
 
