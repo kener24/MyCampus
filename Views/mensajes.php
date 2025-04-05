@@ -64,6 +64,7 @@ $amigosSinChats = array_filter($mis_amigos, function ($amigo) use ($amigosConCha
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
         }
 
         .top-bar {

@@ -83,8 +83,7 @@ $usuario_id = $_SESSION["usuario_id"];
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a class="dropdown-item btn-editar" href="#"
-                                        data-post-id="<?php echo $publicacion['post_id']; ?>">Editar</a>
+                                    <a class="dropdown-item btn-editar" href="editarPost.php?id=<?php echo $publicacion['post_id']; ?>">Editar</a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item btn-eliminar" href="#"
@@ -314,6 +313,9 @@ $usuario_id = $_SESSION["usuario_id"];
 
         </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Seleccionar todos los botones de comentarios
@@ -686,40 +688,50 @@ $usuario_id = $_SESSION["usuario_id"];
         });
 
         document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll(".btn-eliminar").forEach(button => {
-                button.addEventListener("click", function (event) {
-                    event.preventDefault();
-                    const postId = this.getAttribute("data-post-id");
-                    if (confirm("¿Estás seguro de que deseas eliminar esta publicación?")) {
-                        fetch(`../Controller/eliminarPost.php?post_id=${postId}`, {
-                            method: "GET"
-                        })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error("Error en la respuesta del servidor.");
+    document.querySelectorAll(".btn-eliminar").forEach(button => {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+            const postId = this.getAttribute("data-post-id");
+
+            Swal.fire({
+                title: "¿Estás seguro?",
+                text: "Esta publicación se eliminará permanentemente.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`../Controller/eliminarPost.php?post_id=${postId}`, {
+                        method: "GET"
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire("Eliminado", "La publicación ha sido eliminada.", "success").then(() => {
+                                // Eliminar la publicación del DOM sin recargar la página
+                                const postElement = document.querySelector(`.post-example-box[data-post-id="${postId}"]`);
+                                location.reload(); 
+                                if (postElement) {
+                                    postElement.remove();
                                 }
-                                return response.json();
-                            })
-                            .then(data => {
-                                if (data.success) {
-                                    alert("Publicación eliminada correctamente.");
-                                    location.reload();
-                                    // Eliminar la publicación del DOM
-                                    const postElement = document.querySelector(`.post-example-box[data-post-id="${postId}"]`);
-                                    if (postElement) {
-                                        
-                                        postElement.remove();
-                                        
-                                    }
-                                } else {
-                                    alert(data.message || "Error al eliminar la publicación.");
-                                }
-                            })
-                            .catch(error => console.error("Error al eliminar la publicación:", error));
-                    }
-                });
+                            });
+                        } else {
+                            Swal.fire("Error", data.message || "Error al eliminar la publicación.", "error");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error al eliminar la publicación:", error);
+                        Swal.fire("Error", "Hubo un problema con la solicitud.", "error");
+                    });
+                }
             });
         });
+    });
+});
+
 
 
     </script>

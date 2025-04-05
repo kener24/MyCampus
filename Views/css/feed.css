@@ -747,6 +747,10 @@ button.next {
         margin-left: 1px;
         font-size: 12px;
     }
+    .dropdown{
+        margin-left: 300px;
+        margin-top: -40px;
+    }
     
     
 }

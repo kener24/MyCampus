@@ -48,7 +48,8 @@ class PostModel
         }
     }
 
-    public function eliminarPublicacion($postId) {
+    public function eliminarPublicacion($postId)
+    {
         $query = "DELETE FROM posts WHERE post_id = :post_id";
         $stmt = $this->db->prepare($query); // Cambiado de $this->conn a $this->db
         $stmt->bindParam(':post_id', $postId, PDO::PARAM_INT);
@@ -119,7 +120,23 @@ class PostModel
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function eliminarImagen($postId)
+    {
+        $query = "DELETE FROM post_images WHERE post_id = :post_id ";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':post_id', $postId);
+        return $stmt->execute();
+    }
 
+    // Método para insertar una nueva imagen en la tabla post_images
+    public function insertarImagen($postId, $imageUrl)
+    {
+        $query = "INSERT INTO post_images (post_id, image_url, created_at) VALUES (:post_id, :image_url, NOW())";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':post_id', $postId);
+        $stmt->bindParam(':image_url', $imageUrl);
+        return $stmt->execute();
+    }
 
     public function obtenerPublicacionesPorPostId($postId)
     {
@@ -143,7 +160,23 @@ class PostModel
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function obtenerPublicacionPorId($postId)
+    {
+        $query = "SELECT * FROM posts WHERE post_id = :id";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':id', $postId);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
+    public function actualizarPost($postId, $contenido)
+    {
+        $query = "UPDATE posts SET content = :content WHERE post_id = :id";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':content', $contenido);
+        $stmt->bindParam(':id', $postId);
+        return $stmt->execute();
+    }
 
     public function compartirPublicacion($userId, $originalPostId, $comentario)
     {
