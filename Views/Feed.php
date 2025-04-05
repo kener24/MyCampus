@@ -76,7 +76,27 @@ $usuario_id = $_SESSION["usuario_id"];
                         <p class="post-date"><?php echo htmlspecialchars(tiempoTranscurrido($publicacion['created_at'])); ?>
                         </p>
                     </div>
+                    <?php if ($publicacion['user_id'] == $_SESSION['usuario_id']): ?>
+                        <div class="dropdown" style="display: block;">
+                            <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                &#x22EE; <!-- Icono de tres puntos -->
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item btn-editar" href="#"
+                                        data-post-id="<?php echo $publicacion['post_id']; ?>">Editar</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item btn-eliminar" href="#"
+                                        data-post-id="<?php echo $publicacion['post_id']; ?>">Eliminar</a>
+                                </li>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
                 </div>
+
+                <!-- AQUI KENNER, ESTO LO AÑADE, EN LAS ULTIMAS LINEAS DE ESTE CODIGO ESTA EL JAVASCRIPT-->
+
 
                 <div class="post-example-content">
                     <p><?php echo htmlspecialchars($publicacion['content']); ?></p>
@@ -454,7 +474,7 @@ $usuario_id = $_SESSION["usuario_id"];
             });
         });
 
-       
+
         $(document).on('submit', '.form-comentario', function (e) {
             e.preventDefault(); // Evitar recargar la página
 
@@ -499,8 +519,69 @@ $usuario_id = $_SESSION["usuario_id"];
         }
 
 
-         // Código JavaScript para manejar el clic en "Me gusta" usando AJAX
-         $(document).on('click', '.btn-me-gusta', function () {
+        // Código JavaScript para manejar el clic en "Me gusta" usando AJAX
+
+
+
+        // ✅ 1. Función para actualizar contadores de "Me gusta"
+        function actualizarContadorLikes() {
+            $('.likes-count').each(function () {
+                var postId = $(this).data('post-id');
+
+                $.ajax({
+                    url: '../Controller/likeController.php',
+                    method: 'GET',
+                    data: { post_id: postId },
+                    success: function (response) {
+                        try {
+                            var data = typeof response === 'string' ? JSON.parse(response) : response;
+                            $('.likes-count[data-post-id="' + postId + '"]').text(data.likes_count + ' Me gusta');
+                        } catch (e) {
+                            console.error("Error al procesar JSON en contador de likes", e);
+                        }
+                    },
+                    error: function () {
+                        console.log('Error al actualizar el contador de "Me gusta"');
+                    }
+                });
+            });
+        }
+
+        // ✅ 2. Función para actualizar los botones de "Me gusta" según el estado del usuario
+        function actualizarEstadoBotonLikes() {
+            $('.btn-me-gusta').each(function () {
+                var postId = $(this).data('post-id');
+
+                $.ajax({
+                    url: '../Controller/likeController.php',
+                    method: 'GET',
+                    data: { post_id: postId },
+                    success: function (response) {
+                        try {
+                            var data = typeof response === 'string' ? JSON.parse(response) : response;
+                            var btn = $('.btn-me-gusta[data-post-id="' + postId + '"]');
+                            if (data.liked) {
+                                btn.addClass('liked').html('<i class="fa fa-thumbs-up"></i> Te gusta');
+                            } else {
+                                btn.removeClass('liked').html('<i class="fa fa-thumbs-up"></i> Me gusta');
+                            }
+
+                            // También actualiza el contador por si acaso
+                            $('.likes-count[data-post-id="' + postId + '"]').text(data.likes_count + ' Me gusta');
+                        } catch (e) {
+                            console.error("Error al procesar JSON en estado de botón", e);
+                        }
+                    },
+                    error: function () {
+                        console.log('Error al actualizar el estado de Me gusta');
+                    }
+                });
+            });
+        }
+
+        $(document).on('click', '.btn-me-gusta', function () {
+
+
             var postId = $(this).data('post-id'); // Obtén el ID de la publicación desde el atributo data-post-id
             var userId = <?php echo $userId; ?>; // Asume que $userId está disponible en PHP
 
@@ -514,7 +595,7 @@ $usuario_id = $_SESSION["usuario_id"];
                 success: function (response) {
                     // Verifica si la respuesta es correcta
                     try {
-                        var data = JSON.parse(response); // Intenta parsear la respuesta JSON
+                        var data = response; // Intenta parsear la respuesta JSON
                         var likesCount = data.likes_count;
                         var message = data
                             .message; // Mensaje (si se eliminó o se registró un "Me gusta")
@@ -522,9 +603,9 @@ $usuario_id = $_SESSION["usuario_id"];
                         // Actualiza la cantidad de "Me gusta" en el frontend
                         $('.likes-count[data-post-id="' + postId + '"]').text(likesCount + ' Me gusta');
 
-                        // Opcional: Puedes agregar lógica aquí si quieres mostrar un mensaje al usuario (sin usar alert)
-                        // Ejemplo:
-                        // console.log(message); // Mostrar en consola el mensaje (puedes quitarlo si no es necesario)
+                        actualizarContadorLikes();
+                        actualizarEstadoBotonLikes();
+
 
                     } catch (e) {
                         console.error("Error al procesar la respuesta JSON", e);
@@ -537,72 +618,6 @@ $usuario_id = $_SESSION["usuario_id"];
         });
 
 
-        $(document).ready(function () {
-            // Función para actualizar el contador de "Me gusta"
-            function actualizarContadorLikes() {
-                $('.likes-count').each(function () {
-                    var postId = $(this).data(
-                        'post-id'); // Obtén el ID del post desde el atributo data-post-id
-
-                    $.ajax({
-                        url: '../Controller/likeController.php', // Ruta del archivo PHP que maneja la consulta de "Me gusta"
-                        method: 'GET',
-                        data: {
-                            post_id: postId // Pasamos el ID de la publicación
-                        },
-                        success: function (response) {
-                            var likesCount = response
-                                .likes_count; // Obtén la cantidad de "Me gusta" desde la respuesta JSON
-                            // Actualiza el contador de "Me gusta"
-                            $('.likes-count[data-post-id="' + postId + '"]').text(likesCount +
-                                ' Me gusta');
-                        },
-                        error: function () {
-                            console.log('Error al actualizar el contador de "Me gusta"');
-                        }
-                    });
-                });
-            }
-
-            // Llama a la función cada segundo (1000 milisegundos)
-            setInterval(actualizarContadorLikes, 1000);
-        });
-
-
-
-        setInterval(function () {
-            $('.btn-me-gusta').each(function () {
-                var postId = $(this).data('post-id'); // Obtener el ID del post
-
-                $.ajax({
-                    url: '../Controller/likeController.php',
-                    method: 'GET',
-                    data: { post_id: postId },
-                    success: function (response) {
-                        if (response) {
-                            // Si el usuario ha dado like, cambiamos el estado del botón
-                            if (response.liked) {
-                                $('.btn-me-gusta[data-post-id="' + postId + '"]')
-                                    .addClass('liked')
-                                    .html('<i class="fa fa-thumbs-up"></i> Te gusta');
-                                // Cambiar texto
-                            } else {
-                                $('.btn-me-gusta[data-post-id="' + postId + '"]')
-                                    .removeClass('liked')
-                                    .html('<i class="fa fa-thumbs-up"></i> Me gusta'); // Cambiar texto
-                            }
-
-                            // Actualizamos el contador de Me gusta
-                            $('.likes-count[data-post-id="' + postId + '"]')
-                                .text(response.likes_count + ' Me gusta');
-                        }
-                    },
-                    error: function () {
-                        console.log('Error al actualizar el estado de Me gusta');
-                    }
-                });
-            });
-        }, 4000);
 
         $(document).ready(function () {
             $('.btn-comentarios').click(function () {
@@ -665,6 +680,42 @@ $usuario_id = $_SESSION["usuario_id"];
                     },
                     error: function () {
                         alert("Error al enviar el comentario.");
+                    }
+                });
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".btn-eliminar").forEach(button => {
+                button.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    const postId = this.getAttribute("data-post-id");
+                    if (confirm("¿Estás seguro de que deseas eliminar esta publicación?")) {
+                        fetch(`../Controller/eliminarPost.php?post_id=${postId}`, {
+                            method: "GET"
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error("Error en la respuesta del servidor.");
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    alert("Publicación eliminada correctamente.");
+                                    location.reload();
+                                    // Eliminar la publicación del DOM
+                                    const postElement = document.querySelector(`.post-example-box[data-post-id="${postId}"]`);
+                                    if (postElement) {
+                                        
+                                        postElement.remove();
+                                        
+                                    }
+                                } else {
+                                    alert(data.message || "Error al eliminar la publicación.");
+                                }
+                            })
+                            .catch(error => console.error("Error al eliminar la publicación:", error));
                     }
                 });
             });

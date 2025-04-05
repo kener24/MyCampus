@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Llamar al método likePost
     $result = $postModel->likePost($postId, $userId);
-    $yaDioLike = $postModel->usuarioYaDioLike($post_id, $userId);
+    $yaDioLike = $postModel->usuarioYaDioLike($postId, $userId);
 
     // Obtener la cantidad de "Me gusta" actualizada
     $likesCount = $postModel->getLikesCount($postId);
@@ -32,6 +32,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'success' => true,
         'liked' => $yaDioLike
     ]);
+    // Notificar al WebSocket
+$socket = fsockopen("localhost", 8080);
+if ($socket) {
+    $payload = json_encode([
+        'type' => 'like',
+        'post_id' => $postId
+    ]);
+    fwrite($socket, $payload);
+    fclose($socket);
+}
+
     exit;
 
 }

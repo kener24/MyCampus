@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Client</title>
+</head>
+<body>
+    <h1>Cliente WebSocket</h1>
+    <button id="enviar">Enviar Mensaje</button>
+
+    <script>
+        
+        let socket;
+
+function conectarSocket() {
+    socket = new WebSocket("ws://localhost:8080/");
+
+    socket.onopen = function () {
+        console.log("WebSocket conectado");
+        socket.send("Hola desde el cliente");
+    };
+
+    socket.onmessage = function (event) {
+        console.log("Mensaje del servidor:", event.data);
+    };
+
+    socket.onclose = function () {
+        console.log("WebSocket cerrado. Reintentando en 3s...");
+        setTimeout(conectarSocket, 3000);
+    };
+
+    socket.onerror = function (error) {
+        console.error("WebSocket error:", error);
+        socket.close();
+    };
+}
+
+conectarSocket();
+
+    </script>
+</body>
+</html>

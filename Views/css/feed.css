@@ -3,7 +3,11 @@ body {
 
 }
 
-/* Estilos para el contenedor principal del feed */
+.dropdown{
+    margin-left: 510px;
+    margin-top: -40px;
+}
+
 .carousel-container {
     position: relative;
     width: 100%;
