@@ -6,6 +6,13 @@ if (!isset($_GET['id'])) {
 $postId = intval($_GET['id']);
 
 session_start();
+
+if (!isset($_SESSION['usuario_id'])) {
+    header("Location: ../index.php?error=no_autenticado");
+    exit();
+}
+
+
 $userId = $_SESSION["usuario_id"];
 $name = $_SESSION["usuario_nombre"];
 require_once '../config/database.php';
@@ -13,6 +20,7 @@ require_once '../config/helpers.php';
 require_once '../Controller/mostrar-post.php';
 require_once '../Controller/likeController.php';
 require_once '../models/postModel.php';
+include '../config/session.php'; 
 
 $database = new Database();
 $conn = $database->getConnection();
@@ -33,6 +41,7 @@ $usuario_id = $_SESSION["usuario_id"];
     <title>Compartir</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <meta http-equiv="refresh" content="901">
     <link rel="icon" type="image/png" href="Home/logo.png">
     <link rel="stylesheet" href="css/feed.css">
 </head>
@@ -41,6 +50,10 @@ $usuario_id = $_SESSION["usuario_id"];
         width: 25px;
         height: 25px;
         margin-left: -5px;
+    }
+    .coments {
+        margin-top: -30px;
+        margin-left: 20px;
     }
 </style>
 
@@ -56,7 +69,7 @@ $usuario_id = $_SESSION["usuario_id"];
                 </a>
             </div>
             <!-- Campo para la descripción -->
-            <div class="mb-3">
+            <div class="mb-3 coments">
                 <textarea class="form-control" name="content" id="descripcion" rows="2"
                     placeholder="Escribe algo sobre esta publicación..."></textarea>
             </div>

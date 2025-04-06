@@ -23,7 +23,7 @@ $chat_id = $_GET['chat_id'];
 
 try {
     // Consultar los mensajes
-    $stmt = $pdo->prepare("SELECT m.*, u.nombre 
+    $stmt = $pdo->prepare("SELECT m.*,m.mensaje_id ,u.nombre 
                           FROM mensajes m
                           JOIN users u ON m.user_id = u.id
                           WHERE m.chat_id = ? 

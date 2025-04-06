@@ -48,6 +48,13 @@ class PostModel
         }
     }
 
+    public function eliminarPublicacion($postId) {
+        $query = "DELETE FROM posts WHERE post_id = :post_id";
+        $stmt = $this->db->prepare($query); // Cambiado de $this->conn a $this->db
+        $stmt->bindParam(':post_id', $postId, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
 
     public function obtenerComentariosPorPost($post_id)
     {

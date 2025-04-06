@@ -29,24 +29,38 @@
         </div>
 
 
-        <div class="search-bar d-none d-md-block">
-            <input type="text" class="form-control" placeholder="Buscar...">
-        </div>
+        
 
 
         <div class="nav-icons d-flex align-items-center">
             <div class="profile-menu ms-2"> 
-                <img src="Home/imagen.php" alt="Perfil">
+                <img src="Home/imagen.php" alt="Perfil" id="profile-icon">
                 <span>Perfil</span>
+                 
                 <!-- Menú desplegable -->
-                <div class="dropdown-menu">
+                <div class="dropdown-menu" id="dropdown-menu">
                     <a class="dropdown-item" href="perfil.php">Mi perfil</a>
                     <a class="dropdown-item" href="edit-perfil.php">Editar perfil</a>
-                    <a class="dropdown-item" href="../logout.php">Cerrar sesión</a>
+                    <a class="dropdown-item" href="reset-pass.php">Cambiar contraseña</a>
+                    <a class="dropdown-item" href="../config/logout.php">Cerrar sesión</a>
                 </div>
             </div>   
         </div>
+    
     </nav>
-
-
+    
+    <div class="mobile-dropup-menu d-md-none"> <!-- Mostrar solo en móviles -->
+        <div class="btn-group dropup">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Opciones
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="perfil.php">Mi perfil</a></li>
+                <li><a class="dropdown-item" href="edit-perfil.php">Editar perfil</a></li>
+                <li><a class="dropdown-item" href="reset-pass.php">Cambiar contraseña</a></li>
+                <li><a class="dropdown-item" href="../config/logout.php">Cerrar sesión</a></li>
+            </ul>
+        </div>
+    </div>
+   
 </html>

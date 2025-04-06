@@ -5,6 +5,16 @@ body {
     align-items: center;
     min-height: 100vh;
 }
+
+
+.profile-picture {
+    width: 100px; /* Tamaño pequeño de la imagen */
+    height: 100px;
+    cursor: pointer;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 .publics{
     
     align-items: center;

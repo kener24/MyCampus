@@ -1,7 +1,13 @@
 <?php
 session_start();
+
+if (!isset($_SESSION['usuario_id'])) {
+    header("Location: ../index.php?error=no_autenticado");
+    exit();
+}
 require_once '../models/amistadModel.php';
 require_once '../config/database.php';
+include '../config/session.php'; 
 
 $database = new Database();
 $conn = $database->getConnection();
@@ -21,6 +27,7 @@ $solicitudes_pendientes = $usuario->obtenerSolicitudesPendientes($id_usuario_act
     <title>Solicitudes de Amistad</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <meta http-equiv="refresh" content="901">
     <link rel="icon" type="image/png" href="Home/logo.png">
     <link rel="stylesheet" href="css/solicitudes.css">
 </head>

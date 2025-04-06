@@ -1,11 +1,17 @@
 <?php
 session_start();
 
+if (!isset($_SESSION['usuario_id'])) {
+    header("Location: ../index.php?error=no_autenticado");
+    exit();
+}
+
 $name = $_SESSION["usuario_nombre"];
 require_once '../config/database.php';
 require_once __DIR__ . "/../Controller/user-info.php";
 require_once '../config/helpers.php';
 require_once '../Controller/mostrar-post.php';
+include '../config/session.php'; 
 
 require_once '../Controller/likeController.php';
 $usuario_id = $_SESSION["usuario_id"];
@@ -25,6 +31,7 @@ $publicaciones = $postController->mostrarPublicacionesPorUsuario($_SESSION['usua
     <title>Mi perfil</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <meta http-equiv="refresh" content="901">
     <link rel="icon" type="image/png" href="Home/logo.png">
     <link rel="stylesheet" href="css/perfil.css">
     <link rel="stylesheet" href="css/feed.css">
@@ -45,7 +52,7 @@ $publicaciones = $postController->mostrarPublicacionesPorUsuario($_SESSION['usua
 
         <div class="profile-info">
             <h2><?php echo $name; ?></h2>
-            <p>@usuario123</p>
+            <p>@usuario<?php echo $usuario_id?></p>
             <a href="edit-perfil.php" class="btn btn-primary btn-sm"><i class="fa-solid fa-user-plus"></i> Editar
                 perfil</a>
             <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-message"></i> Configuración</button>

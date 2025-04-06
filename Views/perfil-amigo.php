@@ -2,6 +2,11 @@
     session_start();
     require_once '../models/userModel.php';
     require_once __DIR__ . "/../Controller/amigo-info.php";
+    include '../config/session.php'; 
+    if (!isset($_SESSION['usuario_id'])) {
+        header("Location: ../index.php?error=no_autenticado");
+        exit();
+    }
 
     if (!isset($_GET['id'])) {
         die("Acceso denegado");
@@ -40,6 +45,7 @@
     <title>Perfil de <?php echo htmlspecialchars($datos_usuario["nombre"]); ?></title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <meta http-equiv="refresh" content="901">
     <link rel="stylesheet" href="css/perfil.css">
     <link rel="stylesheet" href="css/perfil-amigo.css">
     <link rel="icon" type="image/png" href="Home/logo.png">

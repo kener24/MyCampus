@@ -1,5 +1,12 @@
 <?php
 session_start();
+
+if (!isset($_SESSION['usuario_id'])) {
+    header("Location: ../index.php?error=no_autenticado");
+    exit();
+}
+
+
 $userId = $_SESSION["usuario_id"];
 $name = $_SESSION["usuario_nombre"];
 require_once '../config/database.php';
@@ -7,6 +14,7 @@ require_once '../config/helpers.php';
 require_once '../Controller/mostrar-post.php';
 require_once '../Controller/likeController.php';
 require_once '../models/postModel.php';
+include '../config/session.php';
 
 $database = new Database();
 $conn = $database->getConnection();
@@ -32,6 +40,7 @@ $usuario_id = $_SESSION["usuario_id"];
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="icon" type="image/png" href="Home/logo.png">
+    <meta http-equiv="refresh" content="901">
     <link rel="stylesheet" href="css/feed.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -67,7 +76,27 @@ $usuario_id = $_SESSION["usuario_id"];
                         <p class="post-date"><?php echo htmlspecialchars(tiempoTranscurrido($publicacion['created_at'])); ?>
                         </p>
                     </div>
+                    <?php if ($publicacion['user_id'] == $_SESSION['usuario_id']): ?>
+                        <div class="dropdown" style="display: block;">
+                            <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                &#x22EE; <!-- Icono de tres puntos -->
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item btn-editar" href="#"
+                                        data-post-id="<?php echo $publicacion['post_id']; ?>">Editar</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item btn-eliminar" href="#"
+                                        data-post-id="<?php echo $publicacion['post_id']; ?>">Eliminar</a>
+                                </li>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
                 </div>
+
+                <!-- AQUI KENNER, ESTO LO AÑADE, EN LAS ULTIMAS LINEAS DE ESTE CODIGO ESTA EL JAVASCRIPT-->
+
 
                 <div class="post-example-content">
                     <p><?php echo htmlspecialchars($publicacion['content']); ?></p>
@@ -107,29 +136,46 @@ $usuario_id = $_SESSION["usuario_id"];
                     <?php endif; ?>
                 </div>
 
-               <!-- 🔽 PUBLICACIÓN COMPARTIDA (Si original_post_id existe) 🔽 -->
-        <?php if (!empty($publicacion['original_post_id'])): ?>
-            <div class="post-example-box">
-                <div class="post-example-header">
-                    <img src="Home/img-post.php?id=<?php echo $publicacion['original_user_id']; ?>" alt="Perfil" class="profile-pic">
-                    <div>
-                        <?php echo '<a href="perfil-amigo.php?id=' . $publicacion['original_user_id'] . '" class="no-deco">'; ?>
-                        <p class="username"><?php echo htmlspecialchars($publicacion['original_user']); ?></p>
-                        </a>
-                        <p class="post-date">
-                            <?php echo htmlspecialchars(tiempoTranscurrido($publicacion['original_created_at'])); ?>
-                        </p>
-                    </div>
-                </div>
+                <!-- 🔽 PUBLICACIÓN COMPARTIDA (Si original_post_id existe) 🔽 -->
+                <?php if (!empty($publicacion['original_post_id'])): ?>
+                    <div class="post-example-box">
+                        <div class="post-example-header">
+                            <img src="Home/img-post.php?id=<?php echo $publicacion['original_user_id']; ?>" alt="Perfil"
+                                class="profile-pic">
+                            <div>
+                                <?php echo '<a href="perfil-amigo.php?id=' . $publicacion['original_user_id'] . '" class="no-deco">'; ?>
+                                <p class="username"><?php echo htmlspecialchars($publicacion['original_user']); ?></p>
+                                </a>
+                                <p class="post-date">
+                                    <?php echo htmlspecialchars(tiempoTranscurrido($publicacion['original_created_at'])); ?>
+                                </p>
+                            </div>
+                        </div>
 
-                <div class="post-example-content">
-                    <p><?php echo htmlspecialchars($publicacion['original_content']); ?></p>
-                    <?php if (!empty($publicacion['original_images'])): ?>
-                        <?php
-                        $originalMediaFiles = explode(',', $publicacion['original_images']);
-                        if (count($originalMediaFiles) > 1): ?>
-                            <div class="carousel">
-                                <div class="carousel-images">
+                        <div class="post-example-content">
+                            <p><?php echo htmlspecialchars($publicacion['original_content']); ?></p>
+                            <?php if (!empty($publicacion['original_images'])): ?>
+                                <?php
+                                $originalMediaFiles = explode(',', $publicacion['original_images']);
+                                if (count($originalMediaFiles) > 1): ?>
+                                    <div class="carousel">
+                                        <div class="carousel-images">
+                                            <?php foreach ($originalMediaFiles as $media): ?>
+                                                <?php $mimeType = mime_content_type($media); ?>
+                                                <?php if (strpos($mimeType, 'image/') === 0): ?>
+                                                    <img src="<?php echo htmlspecialchars($media); ?>" alt="Imagen de publicación"
+                                                        class="post-image">
+                                                <?php elseif (strpos($mimeType, 'video/') === 0): ?>
+                                                    <video controls class="post-video">
+                                                        <source src="<?php echo htmlspecialchars($media); ?>" type="<?php echo $mimeType; ?>">
+                                                    </video>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        </div>
+                                        <button class="prev">&#10094;</button>
+                                        <button class="next">&#10095;</button>
+                                    </div>
+                                <?php else: ?>
                                     <?php foreach ($originalMediaFiles as $media): ?>
                                         <?php $mimeType = mime_content_type($media); ?>
                                         <?php if (strpos($mimeType, 'image/') === 0): ?>
@@ -140,27 +186,12 @@ $usuario_id = $_SESSION["usuario_id"];
                                             </video>
                                         <?php endif; ?>
                                     <?php endforeach; ?>
-                                </div>
-                                <button class="prev">&#10094;</button>
-                                <button class="next">&#10095;</button>
-                            </div>
-                        <?php else: ?>
-                            <?php foreach ($originalMediaFiles as $media): ?>
-                                <?php $mimeType = mime_content_type($media); ?>
-                                <?php if (strpos($mimeType, 'image/') === 0): ?>
-                                    <img src="<?php echo htmlspecialchars($media); ?>" alt="Imagen de publicación" class="post-image">
-                                <?php elseif (strpos($mimeType, 'video/') === 0): ?>
-                                    <video controls class="post-video">
-                                        <source src="<?php echo htmlspecialchars($media); ?>" type="<?php echo $mimeType; ?>">
-                                    </video>
                                 <?php endif; ?>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    <?php endif; ?>
-                </div>
-            </div>
-        <?php endif; ?>
-        <!-- 🔼 FIN PUBLICACIÓN COMPARTIDA 🔼 -->
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+                <!-- 🔼 FIN PUBLICACIÓN COMPARTIDA 🔼 -->
 
 
 
@@ -443,8 +474,114 @@ $usuario_id = $_SESSION["usuario_id"];
             });
         });
 
+
+        $(document).on('submit', '.form-comentario', function (e) {
+            e.preventDefault(); // Evitar recargar la página
+
+            var postId = $(this).data('post-id');
+            var comentario = $(this).find('textarea').val();
+
+            $.ajax({
+                url: '../Controller/comentarioController.php',
+                method: 'POST',
+                data: { post_id: postId, comentario: comentario },
+                success: function (response) {
+                    // Si el comentario se publicó correctamente, actualiza el contador de comentarios
+                    if (response.success) {
+                        actualizarContadorComentarios(postId);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log("Error AJAX:", status, error);
+                }
+            });
+        });
+
+        function actualizarContadorComentarios(postId) {
+            var contadorElemento = $('.coment-count[data-post-id="' + postId + '"]').find('.contador');
+
+            $.ajax({
+                url: '../Controller/comentarioController.php',
+                method: 'GET',
+                data: { post_id: postId, cache_buster: new Date().getTime() }, // Evita caché
+                dataType: 'json',
+                success: function (response) {
+                    if (response.coments_count !== undefined) {
+                        contadorElemento.text(response.coments_count); // Actualiza el contador en el HTML
+                    } else {
+                        console.log("Error: El servidor no devolvió coments_count.");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log("Error AJAX:", status, error);
+                }
+            });
+        }
+
+
         // Código JavaScript para manejar el clic en "Me gusta" usando AJAX
+
+
+
+        // ✅ 1. Función para actualizar contadores de "Me gusta"
+        function actualizarContadorLikes() {
+            $('.likes-count').each(function () {
+                var postId = $(this).data('post-id');
+
+                $.ajax({
+                    url: '../Controller/likeController.php',
+                    method: 'GET',
+                    data: { post_id: postId },
+                    success: function (response) {
+                        try {
+                            var data = typeof response === 'string' ? JSON.parse(response) : response;
+                            $('.likes-count[data-post-id="' + postId + '"]').text(data.likes_count + ' Me gusta');
+                        } catch (e) {
+                            console.error("Error al procesar JSON en contador de likes", e);
+                        }
+                    },
+                    error: function () {
+                        console.log('Error al actualizar el contador de "Me gusta"');
+                    }
+                });
+            });
+        }
+
+        // ✅ 2. Función para actualizar los botones de "Me gusta" según el estado del usuario
+        function actualizarEstadoBotonLikes() {
+            $('.btn-me-gusta').each(function () {
+                var postId = $(this).data('post-id');
+
+                $.ajax({
+                    url: '../Controller/likeController.php',
+                    method: 'GET',
+                    data: { post_id: postId },
+                    success: function (response) {
+                        try {
+                            var data = typeof response === 'string' ? JSON.parse(response) : response;
+                            var btn = $('.btn-me-gusta[data-post-id="' + postId + '"]');
+                            if (data.liked) {
+                                btn.addClass('liked').html('<i class="fa fa-thumbs-up"></i> Te gusta');
+                            } else {
+                                btn.removeClass('liked').html('<i class="fa fa-thumbs-up"></i> Me gusta');
+                            }
+
+                            // También actualiza el contador por si acaso
+                            $('.likes-count[data-post-id="' + postId + '"]').text(data.likes_count + ' Me gusta');
+                        } catch (e) {
+                            console.error("Error al procesar JSON en estado de botón", e);
+                        }
+                    },
+                    error: function () {
+                        console.log('Error al actualizar el estado de Me gusta');
+                    }
+                });
+            });
+        }
+
         $(document).on('click', '.btn-me-gusta', function () {
+
+
             var postId = $(this).data('post-id'); // Obtén el ID de la publicación desde el atributo data-post-id
             var userId = <?php echo $userId; ?>; // Asume que $userId está disponible en PHP
 
@@ -458,7 +595,7 @@ $usuario_id = $_SESSION["usuario_id"];
                 success: function (response) {
                     // Verifica si la respuesta es correcta
                     try {
-                        var data = JSON.parse(response); // Intenta parsear la respuesta JSON
+                        var data = response; // Intenta parsear la respuesta JSON
                         var likesCount = data.likes_count;
                         var message = data
                             .message; // Mensaje (si se eliminó o se registró un "Me gusta")
@@ -466,9 +603,9 @@ $usuario_id = $_SESSION["usuario_id"];
                         // Actualiza la cantidad de "Me gusta" en el frontend
                         $('.likes-count[data-post-id="' + postId + '"]').text(likesCount + ' Me gusta');
 
-                        // Opcional: Puedes agregar lógica aquí si quieres mostrar un mensaje al usuario (sin usar alert)
-                        // Ejemplo:
-                        // console.log(message); // Mostrar en consola el mensaje (puedes quitarlo si no es necesario)
+                        actualizarContadorLikes();
+                        actualizarEstadoBotonLikes();
+
 
                     } catch (e) {
                         console.error("Error al procesar la respuesta JSON", e);
@@ -481,147 +618,6 @@ $usuario_id = $_SESSION["usuario_id"];
         });
 
 
-        $(document).ready(function () {
-            // Función para actualizar el contador de "Me gusta"
-            function actualizarContadorLikes() {
-                $('.likes-count').each(function () {
-                    var postId = $(this).data(
-                        'post-id'); // Obtén el ID del post desde el atributo data-post-id
-
-                    $.ajax({
-                        url: '../Controller/likeController.php', // Ruta del archivo PHP que maneja la consulta de "Me gusta"
-                        method: 'GET',
-                        data: {
-                            post_id: postId // Pasamos el ID de la publicación
-                        },
-                        success: function (response) {
-                            var likesCount = response
-                                .likes_count; // Obtén la cantidad de "Me gusta" desde la respuesta JSON
-                            // Actualiza el contador de "Me gusta"
-                            $('.likes-count[data-post-id="' + postId + '"]').text(likesCount +
-                                ' Me gusta');
-                        },
-                        error: function () {
-                            console.log('Error al actualizar el contador de "Me gusta"');
-                        }
-                    });
-                });
-            }
-
-            // Llama a la función cada segundo (1000 milisegundos)
-            setInterval(actualizarContadorLikes, 1000);
-        });
-        ///Contador comentarios
-        $(document).ready(function () {
-            // Función para actualizar el contador de comentarios"
-            function actualizarContadorLikes() {
-                $('.likes-count').each(function () {
-                    var postId = $(this).data(
-                        'post-id'); // Obtén el ID del post desde el atributo data-post-id
-
-                    $.ajax({
-                        url: '../Controller/likeController.php', // Ruta del archivo PHP que maneja la consulta de "Me gusta"
-                        method: 'GET',
-                        data: {
-                            post_id: postId // Pasamos el ID de la publicación
-                        },
-                        success: function (response) {
-                            var likesCount = response
-                                .likes_count; // Obtén la cantidad de "Me gusta" desde la respuesta JSON
-                            // Actualiza el contador de "Me gusta"
-                            $('.likes-count[data-post-id="' + postId + '"]').text(likesCount +
-                                ' Me gusta');
-                        },
-                        error: function () {
-                            console.log('Error al actualizar el contador de "Me gusta"');
-                        }
-                    });
-                });
-            }
-
-            // Llama a la función cada segundo (1000 milisegundos)
-            setInterval(actualizarContadorLikes, 1000);
-        });
-
-        $(document).ready(function () {
-            function actualizarContadores() {
-                console.log("Ejecutando actualización de contadores...");
-
-                $('.coment-count').each(function () {
-                    var postId = $(this).data('post-id');
-
-                    if (!postId) {
-                        console.log("Error: No se encontró post_id en .coment-count");
-                        return;
-                    }
-
-                    var contadorElemento = $(this).find('.contador'); // Seleccionar el número dentro del span con clase 'contador'
-
-                    $.ajax({
-                        url: '../Controller/comentarioController.php',
-                        method: 'GET',
-                        data: { post_id: postId, cache_buster: new Date().getTime() }, // Evita caché
-                        dataType: 'json',
-                        success: function (response) {
-                            console.log("Respuesta del servidor para post_id:", postId, response);
-
-                            if (response.coments_count !== undefined) {
-                                contadorElemento.text(response.coments_count); // Actualiza el contador en el HTML
-                            } else {
-                                console.log("Error: El servidor no devolvió coments_count.");
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            console.log("Error AJAX:", status, error);
-                        }
-                    });
-                });
-            }
-
-            // Ejecutar la función al cargar la página
-            actualizarContadores();
-
-            // Actualizar cada 3 segundos
-            setInterval(actualizarContadores, 3000);
-        });
-
-
-
-
-
-        setInterval(function () {
-            $('.btn-me-gusta').each(function () {
-                var postId = $(this).data('post-id'); // Obtener el ID del post
-
-                $.ajax({
-                    url: '../Controller/likeController.php',
-                    method: 'GET',
-                    data: { post_id: postId },
-                    success: function (response) {
-                        if (response) {
-                            // Si el usuario ha dado like, cambiamos el estado del botón
-                            if (response.liked) {
-                                $('.btn-me-gusta[data-post-id="' + postId + '"]')
-                                    .addClass('liked')
-                                    .html('<i class="fa fa-thumbs-up"></i> Te gusta');
-                                // Cambiar texto
-                            } else {
-                                $('.btn-me-gusta[data-post-id="' + postId + '"]')
-                                    .removeClass('liked')
-                                    .html('<i class="fa fa-thumbs-up"></i> Me gusta'); // Cambiar texto
-                            }
-
-                            // Actualizamos el contador de Me gusta
-                            $('.likes-count[data-post-id="' + postId + '"]')
-                                .text(response.likes_count + ' Me gusta');
-                        }
-                    },
-                    error: function () {
-                        console.log('Error al actualizar el estado de Me gusta');
-                    }
-                });
-            });
-        }, 1000);
 
         $(document).ready(function () {
             $('.btn-comentarios').click(function () {
@@ -643,8 +639,9 @@ $usuario_id = $_SESSION["usuario_id"];
 
 
         $(document).ready(function () {
+            var postId;
             $(".btn-comentarios").click(function () {
-                let postId = $(this).data("post-id"); // Obtener el post_id del botón
+                postId = $(this).data("post-id"); // Obtener el post_id del botón
                 $("#post_id").val(postId); // Asignarlo al input hidden del modal
 
                 // Limpiar comentarios previos
@@ -678,10 +675,47 @@ $usuario_id = $_SESSION["usuario_id"];
                     data: formData,
                     success: function (response) {
                         $("#nuevoComentario").val(""); // Limpiar el campo de texto
-                        $("#comentariosLista").append(response); // Agregar el comentario sin recargar
+                        $("#comentariosLista").append(response);
+                        actualizarContadorComentarios(postId); // Agregar el comentario sin recargar
                     },
                     error: function () {
                         alert("Error al enviar el comentario.");
+                    }
+                });
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".btn-eliminar").forEach(button => {
+                button.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    const postId = this.getAttribute("data-post-id");
+                    if (confirm("¿Estás seguro de que deseas eliminar esta publicación?")) {
+                        fetch(`../Controller/eliminarPost.php?post_id=${postId}`, {
+                            method: "GET"
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error("Error en la respuesta del servidor.");
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    alert("Publicación eliminada correctamente.");
+                                    location.reload();
+                                    // Eliminar la publicación del DOM
+                                    const postElement = document.querySelector(`.post-example-box[data-post-id="${postId}"]`);
+                                    if (postElement) {
+                                        
+                                        postElement.remove();
+                                        
+                                    }
+                                } else {
+                                    alert(data.message || "Error al eliminar la publicación.");
+                                }
+                            })
+                            .catch(error => console.error("Error al eliminar la publicación:", error));
                     }
                 });
             });

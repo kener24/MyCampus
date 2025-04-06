@@ -38,7 +38,7 @@
 .nav-center {
     display: flex;
     gap: 90px;
-    margin-left: 200px;
+    margin-left: -200px;
 }
 
 .nav-center a {
@@ -99,7 +99,7 @@
 /* Menú desplegable */
 .dropdown-menu {
     position: absolute;
-    top: 100%;
+    top: 103%;
     right: -13px;
     background-color: #008f39;
     
@@ -123,6 +123,26 @@
 
 .dropdown-menu a:hover {
     background-color: #007e2a;
+}
+
+/* Menú desplegable oculto por defecto */
+.dropdown-menu {
+    display: none; /* Ocultar el menú por defecto */
+}
+
+/* Mostrar el menú cuando esté activo */
+.dropdown-menu.active {
+    display: block;
+}
+
+/* Mostrar el menú "dropup" solo en móviles */
+.mobile-dropup-menu {
+    display: none; /* Ocultar por defecto */
+    position: absolute; /* Posicionar el menú */
+    top: 55px; /* Ajustar la distancia desde la parte superior */
+    left: 5px; /* Ajustar la distancia desde la parte izquierda */
+    z-index: 1000; /* Asegurarse de que esté por encima de otros elementos */
+    text-align: left; /* Alinear el contenido a la izquierda */
 }
 
 /* Navbar inferior (en móviles) */
@@ -155,5 +175,50 @@ body {
     .profile-menu img {
         width: 30px;
         height: 30px;
+    }
+    .dropdown-menu {
+        position: static; /* Ajustar la posición para móviles */
+        box-shadow: none;
+        border: none;
+    }
+    
+    .profile-menu {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .dropdown-menu {
+        position: absolute;
+        top: 103%;
+        right: -13px;
+        background-color: #008f39;
+        
+        border: 1px solid #008f39;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        display: none;
+    }
+    
+    .profile-menu:hover .dropdown-menu {
+        display: block;
+    }
+    
+    .dropdown-menu a {
+        color: rgb(253, 253, 253);
+        text-decoration: none;
+        display: block;
+        padding: 5px 10px;
+    }
+    
+    .dropdown-menu a:hover {
+        background-color: #007e2a;
+    }
+    
+    .mobile-dropup-menu {
+        display: block; /* Mostrar solo en móviles */
+        text-align: center; /* Centrar el menú */
+        margin-top: -30px;
     }
 }

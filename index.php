@@ -1,4 +1,6 @@
 <?php
+session_write_close(); // Cierra sesiones activas
+session_save_path("C:/xampp/sesiones"); // Asegura que la ruta es correcta
 session_start();
 
 ?>
