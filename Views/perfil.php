@@ -36,6 +36,8 @@ $publicaciones = $postController->mostrarPublicacionesPorUsuario($_SESSION['usua
     <link rel="stylesheet" href="css/perfil.css">
     <link rel="stylesheet" href="css/feed.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -53,9 +55,17 @@ $publicaciones = $postController->mostrarPublicacionesPorUsuario($_SESSION['usua
         <div class="profile-info">
             <h2><?php echo $name; ?></h2>
             <p>@usuario<?php echo $usuario_id?></p>
-            <a href="edit-perfil.php" class="btn btn-primary btn-sm"><i class="fa-solid fa-user-plus"></i> Editar
-                perfil</a>
-            <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-message"></i> Configuración</button>
+            <div class="btn-group dropup">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Opciones
+            </button>
+            <ul class="dropdown-menu">
+                
+                <li><a class="dropdown-item" href="edit-perfil.php">Editar perfil</a></li>
+                <li><a class="dropdown-item" href="reset-pass.php">Cambiar contraseña</a></li>
+                <li><a class="dropdown-item" href="../config/logout.php">Cerrar sesión</a></li>
+            </ul>
+        </div>
         </div>
 
         <!-- Información -->
@@ -166,6 +176,23 @@ $publicaciones = $postController->mostrarPublicacionesPorUsuario($_SESSION['usua
                             </p>
                         </div>
                     </div>
+
+                    <?php if ($publicacion['user_id'] == $_SESSION['usuario_id']): ?>
+                        <div class="dropdown" style="display: block;">
+                            <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                &#x22EE; <!-- Icono de tres puntos -->
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item btn-editar" href="editarPost.php?id=<?php echo $publicacion['post_id']; ?>">Editar</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item btn-eliminar" href="#"
+                                        data-post-id="<?php echo $publicacion['post_id']; ?>">Eliminar</a>
+                                </li>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
 
                     <div class="post-example-content">
                         <p><?php echo htmlspecialchars($publicacion['content']); ?></p>
@@ -739,6 +766,50 @@ $publicaciones = $postController->mostrarPublicacionesPorUsuario($_SESSION['usua
                         .catch(error => console.error("Error al cargar comentarios:", error));
                 }
             });
+            document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".btn-eliminar").forEach(button => {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+            const postId = this.getAttribute("data-post-id");
+
+            Swal.fire({
+                title: "¿Estás seguro?",
+                text: "Esta publicación se eliminará permanentemente.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`../Controller/eliminarPost.php?post_id=${postId}`, {
+                        method: "GET"
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire("Eliminado", "La publicación ha sido eliminada.", "success").then(() => {
+                                // Eliminar la publicación del DOM sin recargar la página
+                                const postElement = document.querySelector(`.post-example-box[data-post-id="${postId}"]`);
+                                location.reload(); 
+                                if (postElement) {
+                                    postElement.remove();
+                                }
+                            });
+                        } else {
+                            Swal.fire("Error", data.message || "Error al eliminar la publicación.", "error");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error al eliminar la publicación:", error);
+                        Swal.fire("Error", "Hubo un problema con la solicitud.", "error");
+                    });
+                }
+            });
+        });
+    });
+});
         </script>
 </body>
 

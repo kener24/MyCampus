@@ -34,15 +34,12 @@
 
         <div class="nav-icons d-flex align-items-center">
             <div class="profile-menu ms-2"> 
-                <img src="Home/imagen.php" alt="Perfil">
+               <a href="perfil.php"> <img src="Home/imagen.php" alt="Perfil">
                 <span>Perfil</span>
+
+                </a>
                 <!-- Menú desplegable -->
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="perfil.php">Mi perfil</a>
-                    <a class="dropdown-item" href="edit-perfil.php">Editar perfil</a>
-                    <a class="dropdown-item" href="reset-pass.php">Cambiar contraseña</a>
-                    <a class="dropdown-item" href="../config/logout.php">Cerrar sesión</a>
-                </div>
+                
             </div>   
         </div>
     </nav>
